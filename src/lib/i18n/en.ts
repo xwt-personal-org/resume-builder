@@ -97,6 +97,8 @@ export const en: Record<string, Record<string, string>> = {
     descriptionZh: 'Description (Chinese)',
     descriptionEn: 'Description (English)',
     link: 'Link',
+    highlights: 'Project Highlights',
+    addHighlight: 'Add highlight',
   },
   campusActivities: {
     organizationZh: 'Organization (Chinese)',

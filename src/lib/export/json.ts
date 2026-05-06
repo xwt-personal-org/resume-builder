@@ -44,6 +44,7 @@ function mergeWithDefaults(data: Partial<ResumeData>): ResumeData {
       tech: proj.tech || [],
       period: proj.period || "",
       description: proj.description || { zh: "", en: "" },
+      highlights: proj.highlights || [],
       link: proj.link || "",
     })) : [],
     campusActivities: Array.isArray(data.campusActivities) ? data.campusActivities.map((act) => ({

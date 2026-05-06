@@ -160,6 +160,11 @@ export function ClassicTemplate({ data, sectionOrder, emphasis, language }: Temp
             {getText(proj.description, language) && (
               <div style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary, lineHeight: 1.5, marginTop: "2px" }}>{getText(proj.description, language)}</div>
             )}
+            {proj.highlights && proj.highlights.length > 0 && (
+              <ul style={{ margin: `${TOKENS.spacing.listTop}px 0 0 0`, paddingLeft: "14px", fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary }}>
+                {proj.highlights.map((h, i) => <li key={i} style={{ lineHeight: 1.5 }}>{getText(h, language)}</li>)}
+              </ul>
+            )}
           </div>
         ))}
       </div>

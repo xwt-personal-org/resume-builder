@@ -495,6 +495,21 @@ export function ModernTemplate({
                 {getText(proj.description)}
               </div>
             )}
+            {proj.highlights && proj.highlights.length > 0 && (
+              <ul
+                style={{
+                  margin: "3px 0 0 0",
+                  paddingLeft: "14px",
+                  fontSize: "10.5px",
+                  color: MAIN_TEXT_SECONDARY,
+                  lineHeight: 1.6,
+                }}
+              >
+                {proj.highlights.map((h, i) => (
+                  <li key={i}>{getText(h)}</li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
       </div>

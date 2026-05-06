@@ -97,6 +97,8 @@ export const zh = {
     descriptionZh: '描述（中文）',
     descriptionEn: '描述（英文）',
     link: '链接',
+    highlights: "项目亮点",
+    addHighlight: "添加亮点",
   },
   campusActivities: {
     organizationZh: '组织（中文）',

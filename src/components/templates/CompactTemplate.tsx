@@ -218,6 +218,13 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
                 {getText(proj.description)}
               </div>
             ) : null}
+            {proj.highlights && proj.highlights.length > 0 && (
+              <ul style={{ margin: "1px 0 0 0", paddingLeft: "14px", fontSize: "10.5px", color: C.textSecondary }}>
+                {proj.highlights.map((h, i) => (
+                  <li key={i} style={{ lineHeight: 1.45 }}>{getText(h)}</li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
       </div>

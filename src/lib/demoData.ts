@@ -91,6 +91,10 @@ export const DEMO_RESUME_DATA: ResumeData = {
         zh: "独立设计开发校园二手物品交易平台，支持商品发布、搜索、即时聊天与交易管理，注册用户超 2000 人",
         en: "Independently designed and developed a campus second-hand trading platform with item posting, search, real-time chat, and transaction management. Over 2,000 registered users.",
       },
+      highlights: [
+        { zh: "实现商品发布、搜索、即时聊天与交易管理核心流程", en: "Implemented core flows for item posting, search, real-time chat, and transaction management" },
+        { zh: "优化校招简历场景下的多模板预览与导出体验", en: "Optimized multi-template preview and export experience for campus recruiting resumes" },
+      ],
       link: "https://github.com/zhangmy/campus-market",
     },
     {
@@ -103,6 +107,10 @@ export const DEMO_RESUME_DATA: ResumeData = {
         zh: "基于 AI 的校招简历生成工具，支持中英双语、多模板切换、PDF/SVG 导出，专为校招场景优化",
         en: "AI-powered campus recruitment resume builder with bilingual support, multi-template switching, PDF/SVG export, optimized for campus hiring",
       },
+      highlights: [
+        { zh: "实现中英双语多模板切换，覆盖经典/现代/简约/紧凑 4 种风格", en: "Implemented bilingual multi-template switching across classic, modern, minimal, and compact styles" },
+        { zh: "设计 Zustand 持久化状态管理，支持 JSON 导入导出与一键重置", en: "Designed Zustand persistent state management with JSON import/export and one-click reset" },
+      ],
       link: "",
     },
   ],

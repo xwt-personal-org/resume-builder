@@ -91,6 +91,13 @@
 - **修复**：新增 `/api/runtime/shutdown` + `ShutdownButton`，仅开发环境可用。
 - **验证**：`npm run build` 通过；手动验证"关闭后台"按钮能真正关闭 dev server（前端无连接确认）；关闭浏览器标签页不会自动杀后台。
 
+### I-6-project-description-bullets：项目经历分条亮点改造 [Fixed]
+- **日期**：2026-05-05
+- **类型**：功能增强 / 数据模型
+- **现象**：项目经历描述只有一段文本，不像实习/校园经历支持分条亮点。
+- **修复**：新增 `Project.highlights: BilingualText[]` 字段；Store 全链路兼容（addProject/loadResumeData/persist.merge）；JSON 导入导出兼容（mergeWithDefaults）；ProjectForm 复用 BilingualListInput 组件；四套模板统一渲染项目亮点 `<ul>` bullet list。
+- **验证**：`npm run lint`（仅 ShutdownButton 预存问题）、`npm run build` 通过。
+
 ### I-4-browser-print-mainline：PDF 主链路切换为浏览器打印 [Fixed]
 - **日期**：2026-05-02
 - **类型**：导出链路 / 架构决策

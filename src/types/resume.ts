@@ -33,6 +33,7 @@ export interface Project {
   tech: string[];
   period: string;
   description: BilingualText;
+  highlights: BilingualText[];
   link: string;
 }
 

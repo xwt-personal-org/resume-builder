@@ -303,6 +303,21 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
                   {getText(proj.description)}
                 </div>
               )}
+              {proj.highlights && proj.highlights.length > 0 && (
+                <ul
+                  style={{
+                    margin: "2px 0 0 0",
+                    paddingLeft: 14,
+                    fontSize: 10,
+                    color: C.muted,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {proj.highlights.map((h, i) => (
+                    <li key={i}>{getText(h)}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           );
         })}

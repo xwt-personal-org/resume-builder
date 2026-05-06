@@ -156,6 +156,7 @@ export const useResumeStore = create<ResumeState>()(
               tech: proj?.tech ?? [],
               period: proj?.period ?? '',
               description: proj?.description ?? { zh: '', en: '' },
+              highlights: proj?.highlights ?? [],
               link: proj?.link ?? '',
             }],
           },
@@ -252,7 +253,7 @@ export const useResumeStore = create<ResumeState>()(
           })),
           projects: (data.projects || []).map((p: Partial<Project>) => ({
             id: p.id || uuidv4(), name: p.name || { zh: '', en: '' }, role: p.role || { zh: '', en: '' },
-            tech: p.tech || [], period: p.period || '', description: p.description || { zh: '', en: '' }, link: p.link || '',
+            tech: p.tech || [], period: p.period || '', description: p.description || { zh: '', en: '' }, highlights: p.highlights || [], link: p.link || '',
           })),
           campusActivities: (data.campusActivities || []).map((a: Partial<CampusActivity>) => ({
             id: a.id || uuidv4(), organization: a.organization || { zh: '', en: '' }, role: a.role || { zh: '', en: '' },
@@ -293,7 +294,7 @@ export const useResumeStore = create<ResumeState>()(
             })),
             projects: (d.projects || []).map((p: Partial<Project>) => ({
               id: p.id || uuidv4(), name: p.name || { zh: '', en: '' }, role: p.role || { zh: '', en: '' },
-              tech: p.tech || [], period: p.period || '', description: p.description || { zh: '', en: '' }, link: p.link || '',
+              tech: p.tech || [], period: p.period || '', description: p.description || { zh: '', en: '' }, highlights: p.highlights || [], link: p.link || '',
             })),
             campusActivities: (d.campusActivities || []).map((a: Partial<CampusActivity>) => ({
               id: a.id || uuidv4(), organization: a.organization || { zh: '', en: '' }, role: a.role || { zh: '', en: '' },

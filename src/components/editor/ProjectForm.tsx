@@ -3,6 +3,7 @@
 import { useResumeStore } from "@/store/useResumeStore";
 import t from "@/lib/i18n";
 import { TagInput } from "@/components/ui/TagInput";
+import { BilingualListInput } from "@/components/ui/BilingualListInput";
 
 export function ProjectForm() {
   const { data, addProject, updateProject, removeProject } = useResumeStore();
@@ -117,6 +118,18 @@ export function ProjectForm() {
               onChange={(e) => updateProject(proj.id, { description: { ...proj.description, en: e.target.value } })}
               className="field-input min-h-[60px] resize-y"
               rows={2}
+            />
+          </div>
+
+          <div className="mb-3">
+            <BilingualListInput
+              label={t("projects.highlights")}
+              value={proj.highlights}
+              onChange={(highlights) => updateProject(proj.id, { highlights })}
+              zhPlaceholder="例如：实现核心交易链路，支持 2000+ 注册用户"
+              enPlaceholder="e.g. Implemented the core transaction flow for 2,000+ registered users"
+              addButtonLabel={`+ ${t("projects.addHighlight")}`}
+              emptyText="暂无项目亮点，点击添加一项"
             />
           </div>
 
