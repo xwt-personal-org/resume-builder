@@ -158,3 +158,24 @@
   - i18n 补齐 `research.*` key（中英文）。
   - demo 数据新增一条 PKU 计算机视觉实验室研究经历。
 - **验证**：`npm run build` 通过。
+
+### I-9-avatar-local-upload-crop：本地证件照上传与裁剪 [Fixed]
+- **日期**：2026-05-06
+- **类型**：功能增强 / 本地图片处理
+- **现象**：证件照只能粘贴 URL，无法选择本地文件并输出固定比例证件照。
+- **修复**：新增 `src/lib/image/avatarImage.ts`，使用 FileReader 读取 JPG/PNG/WebP，限制 5MB；新增 `ImageCropper`，支持 3:4 预览框、拖动平移、缩放和 canvas 输出 360x480 JPEG data URL；`PersonalInfoForm` 接入本地选择、裁剪确认、删除与预览，继续写入 `PersonalInfo.avatarUrl`。
+- **验证**：`npm run build` 通过；Playwright 手动 QA 选择本地 PNG、拖动/缩放后确认，localStorage 中 `avatarUrl` 为 `data:image/jpeg;base64,...`，图片 natural size 为 360x480。
+
+### I-10-layout-controls-drag-sort：展示设置拖拽排序 [Fixed]
+- **日期**：2026-05-06
+- **类型**：交互 / 布局控制
+- **现象**：展示设置只能隐藏/显示模块，无法调整模块顺序。
+- **修复**：`LayoutControls` 使用 `getControllableSectionOrder()` 渲染除 `personalInfo` 外的模块；每个模块卡片支持 HTML5 Drag and Drop，并保留上移/下移按钮；提交排序时调用 `setSectionOrder(["personalInfo", ...next])`。
+- **验证**：`npm run build` 通过；Playwright 手动 QA 将“项目经历”拖到“教育背景”上方，预览中项目经历位于教育背景前，刷新后顺序保持。
+
+### I-11-research-section-order-visibility：旧 sectionOrder 缺科研经历导致不渲染 [Fixed]
+- **日期**：2026-05-06
+- **类型**：兼容性 / 模板渲染
+- **现象**：旧 localStorage / 旧导出 payload 的 `sectionOrder` 不含 `researchExperience` 时，展示设置中可看到科研经历，但模板不渲染。
+- **修复**：新增统一 `normalizeSectionOrder()`；store 初始状态、`setSectionOrder()`、`persist.merge`、`PreviewPanel`、`/export` payload 读取与四套模板入口均接入归一化。旧默认顺序缺失 `researchExperience` 时按 `DEFAULT_SECTION_ORDER` 补回教育背景之后。
+- **验证**：`npm run build` 通过；Playwright 手动 QA 构造旧 `sectionOrder`，刷新后 UI 顺序为教育背景、科研经历、荣誉奖项，科研经历在预览与 `/export` 中均渲染；隐藏/显示切换生效。

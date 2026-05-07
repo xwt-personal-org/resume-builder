@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useResumeStore } from "@/store/useResumeStore";
 import { PreviewPanel } from "@/components/preview/PreviewPanel";
 import type { ResumeData, TemplateName, SectionKey, SectionEmphasis } from "@/types";
+import { ALL_SECTION_KEYS, normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface PrintPayload {
   data: ResumeData;
@@ -15,16 +16,6 @@ interface PrintPayload {
 }
 
 const TEMPLATE_NAMES: TemplateName[] = ["classic", "modern", "minimal", "compact"];
-const SECTION_KEYS: SectionKey[] = [
-  "personalInfo",
-  "education",
-  "honors",
-  "experience",
-  "projects",
-  "campusActivities",
-  "skills",
-];
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -38,18 +29,14 @@ function isLanguage(value: unknown): value is "zh" | "en" {
 }
 
 function isSectionOrder(value: unknown): value is SectionKey[] {
-  return (
-    Array.isArray(value) &&
-    value.length === SECTION_KEYS.length &&
-    value.every((item): item is SectionKey => (SECTION_KEYS as string[]).includes(item as string))
-  );
+  return Array.isArray(value);
 }
 
 function isSectionEmphasisMap(value: unknown): value is Partial<Record<SectionKey, SectionEmphasis>> {
   if (!isRecord(value)) return false;
   return Object.entries(value).every(
     ([key, item]) =>
-      (SECTION_KEYS as string[]).includes(key) &&
+      (ALL_SECTION_KEYS as readonly string[]).includes(key) &&
       (item === "expanded" || item === "normal" || item === "compact" || item === "hidden"),
   );
 }
@@ -77,6 +64,7 @@ function readPrintPayload(): PrintPayload | null {
     }
     return {
       ...parsed,
+      sectionOrder: normalizeSectionOrder(parsed.sectionOrder),
       emphasis: parsed.emphasis ?? {},
       createdAt: typeof parsed.createdAt === "number" ? parsed.createdAt : Date.now(),
     };

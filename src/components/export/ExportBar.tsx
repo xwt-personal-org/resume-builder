@@ -6,6 +6,7 @@ import { downloadJSON, importFromJSON } from "@/lib/export/json";
 import { downloadSVG } from "@/lib/export/svg";
 import t from "@/lib/i18n";
 import { ShutdownButton } from "@/components/runtime/ShutdownButton";
+import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 import type { ResumeData, TemplateName, SectionKey, SectionEmphasis } from "@/types/resume";
 
 interface PrintPayload {
@@ -31,7 +32,7 @@ export function ExportBar() {
     const payload: PrintPayload = {
       data: store.data,
       template: store.template,
-      sectionOrder: store.sectionOrder,
+      sectionOrder: normalizeSectionOrder(store.sectionOrder),
       emphasis: store.emphasis,
       language: store.activeLanguage,
       createdAt: Date.now(),
@@ -47,7 +48,7 @@ export function ExportBar() {
     try {
       downloadSVG({
         data: store.data,
-        sectionOrder: store.sectionOrder,
+        sectionOrder: normalizeSectionOrder(store.sectionOrder),
         emphasis: store.emphasis,
         language: store.activeLanguage,
         template: store.template,

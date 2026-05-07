@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { forwardRef } from "react";
 import { useResumeStore } from "@/store/useResumeStore";
+import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 const ClassicTemplate = dynamic(
   () => import("@/components/templates/ClassicTemplate").then((m) => ({ default: m.ClassicTemplate })),
@@ -24,7 +25,12 @@ const CompactTemplate = dynamic(
 export const PreviewPanel = forwardRef<HTMLDivElement>(function PreviewPanel(_, ref) {
   const { data, template, sectionOrder, emphasis, activeLanguage } = useResumeStore();
 
-  const props = { data, sectionOrder, emphasis, language: activeLanguage };
+  const props = {
+    data,
+    sectionOrder: normalizeSectionOrder(sectionOrder),
+    emphasis,
+    language: activeLanguage,
+  };
 
   return (
     <div className="flex justify-center">

@@ -2,6 +2,7 @@
 
 import type { ResumeData, SectionKey, SectionEmphasis } from "@/types";
 import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface TemplateProps {
   data: ResumeData;
@@ -59,6 +60,7 @@ export function ModernTemplate({
     if (!b) return "";
     return language === "zh" ? b.zh || b.en : b.en || b.zh;
   };
+  const normalizedSectionOrder = normalizeSectionOrder(sectionOrder);
 
   const renderSidebarPersonalInfo = () => {
     const info = data.personalInfo;
@@ -126,49 +128,6 @@ export function ModernTemplate({
     );
   };
 
-  const renderSidebarSkills = () => {
-    if (emphasis.skills === "hidden" || data.skills.length === 0) return null;
-    return (
-      <div>
-        <div
-          style={{
-            fontSize: "13px",
-            fontWeight: 700,
-            color: SIDEBAR_TEXT,
-            marginBottom: `${TOKENS.spacing.sectionTitleBottom}px`,
-            paddingBottom: "3px",
-            borderBottom: `${TOKENS.line.sectionStrongPx}px solid ${SIDEBAR_ACCENT}`,
-          }}
-        >
-          {getText(SECTION_LABELS.skills)}
-        </div>
-        {data.skills.map((cat) => (
-          <div key={cat.id} style={{ marginBottom: "8px" }}>
-            <div
-              style={{
-                fontSize: "10px",
-                fontWeight: 600,
-                color: SIDEBAR_TEXT_LIGHT,
-                marginBottom: "3px",
-              }}
-            >
-              {getText(cat.category)}
-            </div>
-            <div
-              style={{
-                fontSize: "10px",
-                color: SIDEBAR_TEXT,
-                lineHeight: 1.6,
-              }}
-            >
-              {cat.items.join(" · ")}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   const renderMainSectionHeader = (sectionKey: SectionKey) => (
     <div
       style={{
@@ -186,6 +145,21 @@ export function ModernTemplate({
       {getText(SECTION_LABELS[sectionKey])}
     </div>
   );
+
+  const renderSkills = () => {
+    if (data.skills.length === 0) return null;
+    return (
+      <div style={{ marginBottom: "12px" }}>
+        {renderMainSectionHeader("skills")}
+        {data.skills.map((cat) => (
+          <div key={cat.id} style={{ marginBottom: "5px", fontSize: `${TOKENS.fontSize.body}px`, lineHeight: 1.6 }}>
+            <span style={{ fontWeight: 600, color: MAIN_TEXT }}>{getText(cat.category)}</span>
+            <span style={{ color: MAIN_TEXT_SECONDARY }}>: {cat.items.join(" | ")}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   const renderEducation = () => {
     if (data.education.length === 0) return null;
@@ -667,11 +641,11 @@ export function ModernTemplate({
     "experience",
     "projects",
     "campusActivities",
+    "skills",
   ];
 
   const sidebarRenderers: Record<string, () => React.ReactNode> = {
     personalInfo: renderSidebarPersonalInfo,
-    skills: renderSidebarSkills,
   };
 
   const mainRenderers: Record<string, () => React.ReactNode> = {
@@ -681,10 +655,11 @@ export function ModernTemplate({
     experience: renderExperience,
     projects: renderProjects,
     campusActivities: renderCampusActivities,
+    skills: renderSkills,
   };
 
-  const visibleSidebarSections: SectionKey[] = ["personalInfo", ...(emphasis.skills === "hidden" ? [] : (["skills"] as SectionKey[]))];
-  const visibleMainSections = sectionOrder.filter(
+  const visibleSidebarSections: SectionKey[] = ["personalInfo"];
+  const visibleMainSections = normalizedSectionOrder.filter(
     (key) =>
       mainSections.includes(key) &&
       emphasis[key] !== "hidden"

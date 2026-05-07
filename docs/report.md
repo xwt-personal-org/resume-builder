@@ -1,45 +1,42 @@
 # Execution Report
 
-## STATUS: ALL_CLEAR
+## STATUS: NEEDS_REVIEW
 
-> 上次更新：2026-05-06 | plan.md 版本：v5
+> 上次更新: 2026-05-06 | plan.md 版本: v6
 
 ## Last Execution
-- 来源：dispatch:patch (v5)
-- 摘要：完成四套模板证件照占位与新增可选模块「科研经历」的全链路接入。类型模型、Store CRUD、JSON 兼容、编辑器表单、模板渲染、i18n 文案均已完整实现。
+- 来源: dispatch:patch (v6)
+- 摘要: 已完成 inbox merge-back，将 v5 计划归档并启用 v6。模块 12 已实现本地证件照上传/裁剪、展示设置拖拽排序、统一 `sectionOrder` 归一化，并修复旧顺序缺失科研经历导致模板不渲染的问题。
 
 ## Completed
-- [x] Merge-back: plan v4 归档至 `.archive/plan-v4.md`，inbox v5 升级为 `docs/plan.md`
-- [x] 模块 11 Step 1：扩展核心类型（ResearchExperience, SectionKey, ResumeData, DEFAULT_RESUME_DATA, DEFAULT_SECTION_ORDER, SECTION_LABELS）
-- [x] 模块 11 Step 2：PersonalInfoForm 补 avatarUrl URL 输入
-- [x] 模块 11 Step 3：Store 新增 ResearchExperience CRUD + loadResumeData/persist.merge 归一化
-- [x] 模块 11 Step 4：新建 ResearchExperienceForm + SidebarEditor tab + LayoutControls 控制
-- [x] 模块 11 Step 5：四套模板证件照占位（designTokens + PhotoSlot + 布局调整）
-- [x] 模块 11 Step 6：四套模板 renderResearchExperience 渲染
-- [x] 模块 11 Step 7：JSON mergeWithDefaults 归一化 + demo data 新增科研经历
-- [x] 模块 11 Step 8：i18n 补齐 personalInfo.avatarUrl, sections.researchExperience, research.* 等 key
-- [x] 模块 11 Step 9：issues.md 追加 I-7 / I-8 修复记录
-- [x] `npm run build` 通过 — Compiled + TypeScript + Static pages 5/5
+- [x] Merge-back: `docs/plan.md` v5 归档到 `docs/.archive/plan-v5.md`，inbox v6 覆盖为当前计划 (commit 未提交)
+- [x] 模块 12 Step 1-2: 新增 `normalizeSectionOrder()` / `getControllableSectionOrder()`，store 初始值、`setSectionOrder()`、`persist.merge` 接入归一化 (commit 未提交)
+- [x] 模块 12 Step 3-5: 四套模板入口防御归一化，Modern `skills` 改为按 `sectionOrder` 在 main area 渲染；`PreviewPanel` 与 `/export` payload 读取同步归一化 (commit 未提交)
+- [x] 模块 12 Step 6-8: 新增 FileReader 图片工具与 `ImageCropper`，支持 3:4 拖动/缩放裁剪，`PersonalInfoForm` 接入本地选择、预览、删除和 URL 输入 (commit 未提交)
+- [x] 模块 12 Step 9: `designTokens.photo` 调整为 Classic 84x112、Modern/Minimal 80x106、Compact 66x88 (commit 未提交)
+- [x] 模块 12 Step 10: 已更新 `docs/progress.md`、`docs/issues.md`、`docs/report.md` (commit 未提交)
 
 ## In Review
-- （无）
+- [ ] 模块 12 含 review scope 交互与模板变更，已手动验收，等待 Web/用户审核
 
 ## Blocked
-- （无）
+- [ ] 无
 
 ## Discovered Issues
-- `npm run lint` 有 2 个 pre-existing error 在 `ShutdownButton.tsx`（React Hooks 条件调用），不属于本轮改造，后续单独修复
-- `npm run test:visual` 未运行：存在 v3 遗留 baseline diff + popup timeout，不在本轮 scope
+- `npm run lint` 仍失败：`ShutdownButton.tsx` 条件 Hook 调用两处；`src/lib/export/json.ts` 旧 `any` 一处。均为既有遗留，未纳入 v6 scope。
+- `npm run test:visual` 未运行：v3 遗留 screenshot baseline diff 与 popup timeout 仍未修复。
 
 ## Verification Results
-- ✅ `npm run build` 通过 (✓ Compiled successfully, ✓ TypeScript, ✓ Static pages 5/5)
-- ⚠️ `npm run lint` 有 ShutdownButton.tsx 预存问题
-- ⚠️ `npm run test:visual` 未运行（v3 遗留）
+- `npm run build`: 通过，Next.js 编译、TypeScript、静态页生成均成功。
+- `npm run lint`: 失败，失败点如上，未发现本轮新增 lint 报错。
+- Playwright 手动 QA: 旧 `sectionOrder` 不含 `researchExperience` 时，UI 自动补到教育背景之后，预览可渲染科研经历，隐藏/显示切换生效。
+- Playwright 手动 QA: 选择本地 PNG 后打开裁剪框，拖动/缩放并确认后写入 `data:image/jpeg;base64,...`，输出 natural size 为 360x480。
+- Playwright 手动 QA: 将“项目经历”拖到“教育背景”上方后，预览顺序同步变化；刷新后排序保持。
+- Playwright 手动 QA: `/export` 使用旧 payload 顺序时仍能归一化并渲染科研经历。
 
 ## Recommendations
-- 更新 Playwright screenshot baselines 以包含证件照占位和科研经历
-- 修复 ShutdownButton.tsx 的 React Hooks 条件调用问题（模块 9 Step 5 保留）
-- 后续补项目亮点自动化验收
+- 后续单独修复模块 9 Step 5 的 `ShutdownButton` Hooks lint。
+- 后续单独处理 `src/lib/export/json.ts` 的旧 `any` 与视觉测试 baseline/popup 遗留问题。
 
-## Escalation Details（仅 NEEDS_ESCALATION）
-- （无）
+## Escalation Details(仅 NEEDS_ESCALATION)
+- 无

@@ -1,10 +1,10 @@
 # 开发进度（当前 Web 版基线）
 
 ## 当前状态
-- 当前阶段：v5 patch - 模块 11：证件照模板位与科研经历模块
+- 当前阶段：v6 patch - 模块 12：本地证件照上传、模块拖拽排序与科研经历显示修复
 - 最后更新：2026-05-06
-- 状态：merge-back 完成，实现待执行
-- 说明：v5 在 v4 基线之上新增四套模板证件照模板位与科研经历同级模块。
+- 状态：模块 12 已完成，手动 QA 通过
+- 说明：v6 在 v5 基线之上完成本地证件照上传/裁剪、展示设置拖拽排序、旧 sectionOrder 缺科研经历的归一化修复。
 
 ## 模块进度
 
@@ -90,19 +90,31 @@
 - [x] Step 5：记录问题修复与手动验收 [DONE]
 
 ### 模块 11：证件照模板位与科研经历模块 [v5 新增]
-- [ ] Step 1：扩展核心类型与默认模块顺序
-- [ ] Step 2：补个人信息表单的证件照 URL 输入
-- [ ] Step 3：新增科研经历 Store CRUD 与兼容归一化
-- [ ] Step 4：新增科研经历编辑器入口与表单
-- [ ] Step 5：统一四套模板证件照占位
-- [ ] Step 6：四套模板新增科研经历渲染
-- [ ] Step 7：补 JSON 导入导出与 demo data
-- [ ] Step 8：补 i18n 文案
-- [ ] Step 9：验收、记录与报告更新
+- [x] Step 1：扩展核心类型与默认模块顺序 [DONE]
+- [x] Step 2：补个人信息表单的证件照 URL 输入 [DONE]
+- [x] Step 3：新增科研经历 Store CRUD 与兼容归一化 [DONE]
+- [x] Step 4：新增科研经历编辑器入口与表单 [DONE]
+- [x] Step 5：统一四套模板证件照占位 [DONE]
+- [x] Step 6：四套模板新增科研经历渲染 [DONE]
+- [x] Step 7：补 JSON 导入导出与 demo data [DONE]
+- [x] Step 8：补 i18n 文案 [DONE]
+- [x] Step 9：验收、记录与报告更新 [DONE]
+
+### 模块 12：本地证件照上传、模块拖拽排序与科研经历显示修复 [v6 新增]
+- [x] Step 1：新增 sectionOrder 归一化工具 [DONE]
+- [x] Step 2：在 Store 与持久化入口接入 sectionOrder 归一化 [DONE]
+- [x] Step 3：修复科研经历模板不显示 bug [DONE]
+- [x] Step 4：展示设置支持拖动排序 [DONE]
+- [x] Step 5：四套模板统一按 sectionOrder 渲染可控模块 [DONE]
+- [x] Step 6：新增图片文件读取与校验工具 [DONE]
+- [x] Step 7：实现本地图片裁剪组件 [DONE]
+- [x] Step 8：接入 PersonalInfoForm 本地上传、裁剪与删除 [DONE]
+- [x] Step 9：小幅放大四套模板证件照尺寸 [DONE]
+- [x] Step 10：验收、记录与报告更新 [DONE]
 
 ## 已知问题摘要
 - `npm run test:visual` 仍有模板截图 baseline diff（v3 遗留）。
 - `print export opens clean export page` 仍 timeout，需要修复 popup 测试稳定性（v3 遗留）。
-- 模块展示控制已存在 store 能力，但缺少用户 UI。
+- `npm run lint` 仍有 `ShutdownButton.tsx` 条件 Hook 调用与 `src/lib/export/json.ts` 旧 `any` 问题（非本轮 scope）。
 - 部分用户填写的信息在简历模板中未完整展示，例如项目链接。
 - 关闭浏览器标签页不会自动停止 `npm run dev` 后台进程；已通过关闭后台按钮解决。

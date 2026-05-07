@@ -2,6 +2,7 @@
 
 import type { ResumeData, SectionKey, SectionEmphasis } from "@/types";
 import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface TemplateProps {
   data: ResumeData;
@@ -51,7 +52,8 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
     skills: renderSkills,
   };
 
-  const visibleSections = sectionOrder.filter(
+  const normalizedSectionOrder = normalizeSectionOrder(sectionOrder);
+  const visibleSections = normalizedSectionOrder.filter(
     (key) => key === "personalInfo" || emphasis[key] !== "hidden"
   );
 

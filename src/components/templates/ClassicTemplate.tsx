@@ -2,6 +2,7 @@
 
 import type { ResumeData, SectionKey, SectionEmphasis } from "@/types";
 import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface TemplateProps {
   data: ResumeData;
@@ -43,7 +44,8 @@ function PhotoSlot({ src, language, width, height }: { src: string; language: "z
 }
 
 export function ClassicTemplate({ data, sectionOrder, emphasis, language }: TemplateProps) {
-  const visibleSections = sectionOrder.filter(
+  const normalizedSectionOrder = normalizeSectionOrder(sectionOrder);
+  const visibleSections = normalizedSectionOrder.filter(
     (key) => key === "personalInfo" || emphasis[key] !== "hidden"
   );
   const info = data.personalInfo;

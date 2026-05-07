@@ -1,11 +1,44 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { useResumeStore } from "@/store/useResumeStore";
 import t from "@/lib/i18n";
+import {
+  AVATAR_ACCEPTED_MIME_TYPES,
+  readFileAsDataUrl,
+  validateAvatarFile,
+} from "@/lib/image/avatarImage";
+import { ImageCropper } from "@/components/ui/ImageCropper";
 
 export function PersonalInfoForm() {
-  const { data, setPersonalInfo } = useResumeStore();
+  const { data, activeLanguage, setPersonalInfo } = useResumeStore();
   const info = data.personalInfo;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarError, setAvatarError] = useState("");
+  const [cropSource, setCropSource] = useState<string | null>(null);
+
+  const handleAvatarFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const errorKey = validateAvatarFile(file);
+    if (errorKey) {
+      setAvatarError(t(errorKey));
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      setAvatarError("");
+      const dataUrl = await readFileAsDataUrl(file);
+      setCropSource(dataUrl);
+    } catch (err) {
+      console.error("Avatar file read failed:", err);
+      setAvatarError(t("avatar.readFailed"));
+    } finally {
+      event.target.value = "";
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -149,14 +182,57 @@ export function PersonalInfoForm() {
         />
       </div>
 
-      <div>
+      <div className="rounded-md border border-[var(--color-border)] p-3">
         <label className="field-label">{t("personalInfo.avatarUrl")}</label>
+        <div className="mt-2 flex gap-3">
+          <div className="flex h-[88px] w-[66px] shrink-0 items-center justify-center overflow-hidden rounded border border-dashed border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[11px] text-[var(--color-text-muted)]">
+            {info.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={info.avatarUrl} alt={t("personalInfo.avatarPreview")} className="h-full w-full object-cover" />
+            ) : (
+              <span>{t("personalInfo.avatarPreview")}</span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1 space-y-2">
+            <input
+              type="text"
+              value={info.avatarUrl}
+              onChange={(e) => {
+                setAvatarError("");
+                setPersonalInfo({ avatarUrl: e.target.value });
+              }}
+              className="field-input"
+              placeholder="https://example.com/photo.jpg"
+            />
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn-secondary px-3 py-1.5 text-xs"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {t("personalInfo.avatarUpload")}
+              </button>
+              <button
+                type="button"
+                className="btn-danger px-3 py-1.5 text-xs"
+                disabled={!info.avatarUrl}
+                onClick={() => {
+                  setAvatarError("");
+                  setPersonalInfo({ avatarUrl: "" });
+                }}
+              >
+                {t("personalInfo.avatarRemove")}
+              </button>
+            </div>
+            {avatarError && <div className="text-xs text-red-600">{avatarError}</div>}
+          </div>
+        </div>
         <input
-          type="url"
-          value={info.avatarUrl}
-          onChange={(e) => setPersonalInfo({ avatarUrl: e.target.value })}
-          className="field-input"
-          placeholder="https://example.com/photo.jpg"
+          ref={fileInputRef}
+          type="file"
+          accept={AVATAR_ACCEPTED_MIME_TYPES.join(",")}
+          className="hidden"
+          onChange={handleAvatarFileChange}
         />
       </div>
 
@@ -181,6 +257,19 @@ export function PersonalInfoForm() {
           rows={3}
         />
       </div>
+
+      {cropSource && (
+        <ImageCropper
+          imageDataUrl={cropSource}
+          language={activeLanguage}
+          onCancel={() => setCropSource(null)}
+          onConfirm={(croppedDataUrl) => {
+            setAvatarError("");
+            setPersonalInfo({ avatarUrl: croppedDataUrl });
+            setCropSource(null);
+          }}
+        />
+      )}
     </div>
   );
 }

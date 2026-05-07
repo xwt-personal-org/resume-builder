@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { ResumeData, TemplateName, SectionKey, SectionEmphasis, Education, Honor, Experience, Project, CampusActivity, ResearchExperience, SkillCategory } from '@/types';
 import { DEFAULT_RESUME_DATA, DEFAULT_SECTION_ORDER } from '@/types';
 import { DEMO_RESUME_DATA } from '@/lib/demoData';
+import { normalizeSectionOrder } from '@/lib/resume/sectionOrder';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ResumeState {
@@ -45,7 +46,7 @@ interface ResumeState {
   removeSkillCategory: (id: string) => void;
 
   setTemplate: (template: TemplateName) => void;
-  setSectionOrder: (order: SectionKey[]) => void;
+  setSectionOrder: (order: readonly unknown[]) => void;
   setEmphasis: (emphasis: Partial<Record<SectionKey, SectionEmphasis>>) => void;
   toggleSectionVisibility: (section: SectionKey) => void;
   setActiveLanguage: (lang: 'zh' | 'en') => void;
@@ -60,7 +61,7 @@ export const useResumeStore = create<ResumeState>()(
     (set) => ({
       data: { ...DEMO_RESUME_DATA },
       template: 'classic',
-      sectionOrder: [...DEFAULT_SECTION_ORDER],
+      sectionOrder: normalizeSectionOrder(DEFAULT_SECTION_ORDER),
       emphasis: {},
       activeLanguage: 'zh',
       activeSection: 'personalInfo',
@@ -250,7 +251,7 @@ export const useResumeStore = create<ResumeState>()(
         })),
 
       setTemplate: (template) => set({ template }),
-      setSectionOrder: (sectionOrder) => set({ sectionOrder }),
+      setSectionOrder: (sectionOrder) => set({ sectionOrder: normalizeSectionOrder(sectionOrder) }),
       setEmphasis: (emphasis) => set((state) => ({ emphasis: { ...state.emphasis, ...emphasis } })),
       toggleSectionVisibility: (section) =>
         set((state) => {
@@ -311,6 +312,7 @@ export const useResumeStore = create<ResumeState>()(
         return {
           ...current,
           ...p,
+          sectionOrder: normalizeSectionOrder(p.sectionOrder),
           data: {
             personalInfo: { ...DEFAULT_RESUME_DATA.personalInfo, ...(d.personalInfo || {}) },
             education: (d.education || []).map((e: Partial<Education>) => ({

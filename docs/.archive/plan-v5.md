@@ -2,25 +2,22 @@
 
 ## 元信息
 - 项目：resume-builder
-- 版本：v6
+- 版本：v5
 - 技术栈：Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + Zustand 5
-- 当前目标：在 v5 证件照占位与科研经历基线之上，完成三项后续变更：
-  1. 证件照从纯 URL 扩展为本地文件选择、base64 存储与 3:4 裁剪输出，继续复用 `PersonalInfo.avatarUrl`。
-  2. 「展示设置」支持拖动排序，排序结果写入 `sectionOrder` 并直接影响简历模板中各模块的渲染顺序。
-  3. 修复科研经历在展示设置中显示但不进入简历模板的 bug，核心修复点是旧 localStorage / 旧 JSON 的 `sectionOrder` 缺少 `researchExperience` 时必须归一化补齐。
+- 当前目标：在 v4 项目经历分条亮点基线之上，完成两项结构性变更：
+  1. 四套模板都为个人证件照预留稳定空间，并使用现有 `PersonalInfo.avatarUrl` 渲染照片。
+  2. 新增可选模块「科研经历」，作为与教育背景、实习经历、项目经历、校园经历同级的简历 section，完整接入数据模型、编辑器、布局控制、模板渲染、JSON 兼容和验收。
 - 本轮策略：
-  - 不引入第三方裁剪 / 拖拽依赖；使用浏览器原生 FileReader、Canvas、HTML5 Drag and Drop 实现。
-  - 本地照片不上传服务器，不写入 public 目录；裁剪后的 data URL 直接写入 `PersonalInfo.avatarUrl`。
-  - 证件照裁剪输出固定 3:4；推荐 canvas 输出尺寸 `360x480`，`image/jpeg`，quality `0.9`。
-  - 保留手动 URL 输入能力，用户可在 URL 与本地 base64 图片之间切换。
-  - 证件照尺寸只小幅放大：Classic `84x112`，Modern/Minimal `80x106`，Compact `66x88`；不得挤压 A4 主体内容。
-  - `personalInfo` 仍固定在模板头部 / Modern sidebar，不进入拖拽排序；其余模块均参与排序。
-  - 为避免“UI 显示补齐但模板仍不渲染”的不一致，必须新增统一 `normalizeSectionOrder()` 并在 store、LayoutControls、模板渲染入口全部使用。
-  - Modern 模板不得再把 `skills` 固定在 sidebar；除 `personalInfo` 外，所有可控模块都按 `sectionOrder` 在主内容区渲染。
-  - v3 遗留 lint / visual 问题不作为本轮主目标；如果本轮修改触发相关检查，必须如实记录。
-- 总模块数：12
-- 预计步骤总数：80
-- 建议开发顺序：模块 12 Step 1 → Step 2 → Step 3 → Step 4 → Step 5 → Step 6 → Step 7 → Step 8 → Step 9 → Step 10；模块 8 Step 6 与模块 9 Step 5 仍保留为后续独立修复
+  - 不新增图片上传链路；先复用 `PersonalInfo.avatarUrl`，在 `PersonalInfoForm` 补 URL 输入。
+  - 证件照位必须在有图和无图时都占据固定空间，避免简历版式跳动。
+  - 证件照统一采用证件照矩形比例，不再沿用 Modern 当前圆形头像样式。
+  - 「科研经历」是顶层可选 section，不挂在教育背景内部，不复用 `Education` 字段名。
+  - 「科研经历」字段采用当前已有模块模式：双语主字段 + period + description + highlights，保证中英文简历一致。
+  - 旧 JSON / localStorage 数据缺失 `researchExperience` 时统一归一化为 `[]`。
+  - 视觉测试遗留问题不阻断本轮功能，但新增变更必须至少通过 `npm run build` 与手动 QA。
+- 总模块数：11
+- 预计步骤总数：70
+- 建议开发顺序：模块 11 Step 1 → Step 2 → Step 3 → Step 4 → Step 5 → Step 6 → Step 7 → Step 8 → Step 9；模块 8 Step 6 与模块 9 Step 5 仍保留为后续独立修复
 - 创建日期：2026-05-01
 - 最后更新：2026-05-06
 
@@ -32,26 +29,23 @@
 | v3 | 2026-05-02 | 修复 Playwright webServer / popup print mock / print payload guard；新增开发环境关闭后台进程按钮 |
 | v4 | 2026-05-05 | 新增项目经历双语分条亮点字段、编辑表单、模板渲染、JSON 兼容与视觉验收 |
 | v5 | 2026-05-06 | 四套模板预留证件照位；新增同级可选模块「科研经历」并接入全链路 |
-| v6 | 2026-05-06 | 新增本地证件照上传与裁剪；展示设置支持拖拽排序；修复旧 sectionOrder 导致科研经历不渲染 |
 
 ## Status
 > 任何 agent 读到此区块即可恢复完整上下文。
 
-- 当前阶段：模块 12：本地证件照上传、模块拖拽排序与科研经历显示修复已完成
-- 整体进度：78 / 80 步骤完成
-- 状态：v6 手动 QA 通过；模块 8 Step 6 与模块 9 Step 5 保留为后续独立修复
+- 当前阶段：模块 11：证件照模板位与科研经历模块 Step 1
+- 整体进度：59 / 70 步骤完成
+- 状态：变更后待执行
 - 阻塞项：无
 - 当前决策：
   - `@react-pdf/renderer` 仍不作为主 PDF 导出链路。
-  - Playwright 视觉测试必须可自启动 dev server，`npm run test:visual` 长期目标必须可复现；但 v3 baseline diff / popup timeout 不阻断 v6 功能交付。
+  - Playwright 视觉测试必须可自启动 dev server，`npm run test:visual` 长期目标必须可复现；但 v3 baseline diff / popup timeout 不阻断 v5 功能交付。
   - 关闭后台能力仅限本地开发环境，不能在生产环境暴露可远程杀进程的接口。
   - 项目经历 `description` 与 `highlights` 继续并存，不自动拆分历史文本。
-  - 证件照字段继续复用 `PersonalInfo.avatarUrl`；允许存储 URL 或 data URL。
-  - 本地证件照只在浏览器端读取、裁剪和 base64 化，不上传服务器。
-  - 证件照裁剪比例固定 3:4，裁剪后推荐输出 `360x480` JPEG data URL。
-  - `personalInfo` 固定显示，不参与拖动排序；`education/researchExperience/honors/experience/projects/campusActivities/skills` 均参与排序。
-  - `sectionOrder` 必须被统一归一化：缺失的合法 section 按 `DEFAULT_SECTION_ORDER` 补齐，未知 section 丢弃，重复 section 去重，`personalInfo` 始终保留在首位但不在 UI 控制区展示。
-  - 科研经历显示 bug 的优先修复路径是归一化旧 `sectionOrder`，而不是只在 LayoutControls 中追加 UI 项。
+  - 证件照使用 `PersonalInfo.avatarUrl`，本轮只补 URL 输入和模板渲染，不新增本地文件上传。
+  - 证件照位固定占位：无照片时显示浅色边框占位；有照片时 `<img>` 使用 `object-fit: cover`。
+  - 「科研经历」作为 `SectionKey` 顶层同级模块，默认可显示/隐藏；旧数据缺失时补 `[]`。
+  - 「科研经历」字段定义为 `id / institution / project / role / period / description / highlights`，不使用 `Education.school/degree/major` 字段名，避免语义污染。
 
 ### Last Iteration Summary
 - v2 已完成浏览器打印导出主链路：
@@ -71,26 +65,17 @@
 - v4 已完成并经手动 QA：
   - `Project.highlights: BilingualText[]` 已加入模型、store、JSON、表单和四套模板。
   - 项目经历可分条填写双语亮点，预览和打印导出页可分条显示。
-- v5 已完成并由执行端报告 `ALL_CLEAR`：
-  - 四套模板证件照占位与 `PersonalInfo.avatarUrl` URL 输入已完成。
-  - 新增同级可选模块 `researchExperience`，已接入类型、store、JSON、demo、编辑器、布局控制、四套模板与 i18n。
-  - `npm run build` 通过；`npm run lint` 与 `npm run test:visual` 的旧问题未纳入 v5 修复范围。
-- v6 新需求：
-  - 证件照从 URL 扩展到本地文件选择、base64 转换和图片裁剪。
-  - 展示设置需要拖动排序，排序影响简历页面中模块排列。
-  - 科研经历点击“显示”但不真正显示在模板中，需要修复。
-- v6 已完成并经手动 QA：
-  - 旧 `sectionOrder` 缺失 `researchExperience` 时，UI、store、模板入口与 `/export` payload 均会归一化补齐。
-  - 展示设置支持 HTML5 Drag and Drop，并保留上移/下移按钮；排序刷新后保持。
-  - 本地证件照通过 FileReader 读取，裁剪组件支持拖动与缩放，canvas 输出 360x480 JPEG data URL。
+- v5 新需求：
+  - 每个模板需要合适空间放置个人证件照。
+  - 增加可选模块「科研经历」，层级与教育背景等模块相同。
 
 ### Pending Decisions
 - 是否在后续版本彻底删除 `src/lib/export/pdf.tsx` 与 `@react-pdf/renderer` 依赖：本轮不决定。
 - 是否将 SVG 导出也改为浏览器/DOM 捕获路线：本轮不决定。
 - 是否增加“关闭标签页时自动尝试关闭后台”的实验功能：本轮不做。
 - 是否对历史 `projects[].description` 自动拆分为 `projects[].highlights`：本轮不做。
-- 是否将科研经历拆成「论文成果 / 专利 / 课题」多个子模块：本轮不做。
-- 是否将证件照从 data URL 迁移为 IndexedDB / 文件系统存储：本轮不做，先使用 `avatarUrl` data URL。
+- 是否为证件照新增本地文件上传 / base64 存储 / 图片裁剪：本轮不做，只使用 `avatarUrl` URL。
+- 是否将科研经历拆成「论文成果 / 专利 / 课题」多个子模块：本轮不做，先用通用科研经历条目承载。
 
 ---
 
@@ -566,14 +551,14 @@
   - 新增与教育背景等同级的可选 section：科研经历。
   - 完整接入类型、store、JSON、demo、编辑器、布局控制、四套模板、i18n 和验收。
 - 前置依赖：模块 2、模块 3、模块 4、模块 5、模块 6、模块 7、模块 8、模块 10
-- 当前状态：已完成；v6 将继续扩展本地图片上传、拖拽排序与科研经历显示修复。
+- 当前状态：待执行
 - 非目标：
-  - v5 本身不实现图片上传、裁剪、压缩、本地文件读取；这些能力进入 v6 模块 12。
+  - 不实现图片上传、裁剪、压缩、本地文件读取。
   - 不处理 React PDF 实验导出模板。
   - 不将科研经历拆为论文 / 专利 / 课题多个子模块。
   - 不修复 v3 遗留 visual baseline diff，除非阻断本轮新增测试。
 
-### Step 1：[DONE] 扩展核心类型与默认模块顺序
+### Step 1：扩展核心类型与默认模块顺序
 - **scope: auto**
 - 变更说明：v5 新增；科研经历必须是顶层同级可选模块。
 - 操作：
@@ -602,7 +587,7 @@
     `{ zh: '科研经历', en: 'Research Experience' }`。
 - 验证：`npm run build`
 
-### Step 2：[DONE] 补个人信息表单的证件照 URL 输入
+### Step 2：补个人信息表单的证件照 URL 输入
 - **scope: auto**
 - 变更说明：当前 `PersonalInfo` 已有 `avatarUrl`，但 `PersonalInfoForm` 未暴露输入。
 - 操作：
@@ -618,7 +603,7 @@
   - 输入照片 URL 后右侧预览实时显示照片。
   - 清空照片 URL 后四套模板仍保留证件照占位。
 
-### Step 3：[DONE] 新增科研经历 Store CRUD 与兼容归一化
+### Step 3：新增科研经历 Store CRUD 与兼容归一化
 - **scope: auto**
 - 变更说明：科研经历必须具备与教育背景等数组模块同级的 add/update/remove 能力。
 - 操作：
@@ -645,7 +630,7 @@
   - 浏览器 localStorage 中旧数据不含 `researchExperience` 时页面不崩溃。
   - 新增科研经历后刷新页面数据保留。
 
-### Step 4：[DONE] 新增科研经历编辑器入口与表单
+### Step 4：新增科研经历编辑器入口与表单
 - **scope: auto**
 - 变更说明：科研经历表单应复用现有输入组件，不新增重复列表组件。
 - 操作：
@@ -675,7 +660,7 @@
   - 新增 / 修改 / 删除科研经历后右侧预览实时更新。
   - 布局控制中可隐藏/显示科研经历。
 
-### Step 5：[DONE] 统一四套模板证件照占位
+### Step 5：统一四套模板证件照占位
 - **scope: review**
 - 变更说明：这是本轮视觉核心变更，必须保证四套模板都有稳定照片空间。
 - 操作：
@@ -714,7 +699,7 @@
   - `avatarUrl` 有效时四套模板显示照片。
   - 证件照位不会遮挡姓名、联系方式、summary。
 
-### Step 6：[DONE] 四套模板新增科研经历渲染
+### Step 6：四套模板新增科研经历渲染
 - **scope: review**
 - 变更说明：科研经历必须遵守 `sectionOrder` 与 `emphasis.hidden`。
 - 操作：
@@ -736,7 +721,7 @@
   - 拖动/调整 sectionOrder 后科研经历位置按顺序渲染。
   - 在 LayoutControls 隐藏科研经历后四套模板均不渲染该 section。
 
-### Step 7：[DONE] 补 JSON 导入导出与 demo data
+### Step 7：补 JSON 导入导出与 demo data
 - **scope: auto**
 - 变更说明：旧数据兼容是必须项，否则新增 section 会破坏导入链路。
 - 操作：
@@ -752,7 +737,7 @@
   - 导入缺失 `researchExperience` 的旧 JSON 不崩溃且默认为 `[]`。
   - 点击示例数据后四套模板能看到科研经历。
 
-### Step 8：[DONE] 补 i18n 文案
+### Step 8：补 i18n 文案
 - **scope: auto**
 - 变更说明：新增表单字段不允许硬编码英文 key。
 - 操作：
@@ -777,7 +762,7 @@
   - `npm run build`
   - 切换中英文后，个人照片 URL、科研经历 tab、字段 label、空状态、亮点输入文案语言一致。
 
-### Step 9：[DONE] 验收、记录与报告更新
+### Step 9：验收、记录与报告更新
 - **scope: review**
 - 变更说明：本轮至少手动 QA 必须覆盖四套模板照片位与科研经历全链路。
 - 操作：
@@ -800,262 +785,6 @@
 
 ---
 
-## 模块 12：本地证件照上传、模块拖拽排序与科研经历显示修复
-
-### 概述
-- 职责：
-  - 将证件照输入从纯 URL 扩展为本地文件选择、base64 转换、固定比例裁剪和删除。
-  - 将展示设置改造成可拖动排序控件，并让排序结果真正控制简历模板中的模块顺序。
-  - 修复旧 `sectionOrder` 缺少 `researchExperience` 时，科研经历在展示设置中显示但模板不渲染的问题。
-- 前置依赖：模块 2、模块 3、模块 4、模块 5、模块 7、模块 11
-- 当前状态：已完成
-- 非目标：
-  - 不上传照片到服务器，不实现云端图片存储。
-  - 不引入 `react-easy-crop`、`dnd-kit`、`react-beautiful-dnd` 等第三方依赖。
-  - 不改变 `PersonalInfo.avatarUrl` 字段名，不新增 `avatarBase64` 字段。
-  - 不重做四套模板整体视觉设计；仅做证件照小幅放大与排序逻辑修正。
-
-### Step 1：[DONE] 新增 sectionOrder 归一化工具
-- **scope: auto**
-- 变更说明：科研经历不显示的根因高度可疑是旧 localStorage 的 `sectionOrder` 缺少 `researchExperience`；必须从数据层统一修复。
-- 操作：
-  - 新建 `src/lib/resume/sectionOrder.ts`。
-  - 从 `@/types` 引入 `DEFAULT_SECTION_ORDER` 与 `SectionKey`。
-  - 导出常量：
-    ```ts
-    export const FIXED_SECTIONS: SectionKey[] = ["personalInfo"];
-    export const CONTROLLABLE_SECTIONS: SectionKey[] = DEFAULT_SECTION_ORDER.filter((key) => key !== "personalInfo");
-    ```
-  - 新增函数：
-    ```ts
-    export function normalizeSectionOrder(order?: readonly unknown[]): SectionKey[] { ... }
-    ```
-  - 归一化规则必须固定：
-    - 只保留 `DEFAULT_SECTION_ORDER` 中存在的合法 section。
-    - 去重，保持用户已有合法顺序。
-    - 缺失 section 按 `DEFAULT_SECTION_ORDER` 的相对顺序补齐。
-    - `personalInfo` 始终在结果第一位。
-    - 未知 section 直接丢弃。
-  - 新增辅助函数：
-    ```ts
-    export function getControllableSectionOrder(order?: readonly unknown[]): SectionKey[]
-    ```
-    返回不含 `personalInfo` 的可拖拽列表。
-- 验证：`npm run build`
-
-### Step 2：[DONE] 在 Store 与持久化入口接入 sectionOrder 归一化
-- **scope: review**
-- 变更说明：不能只修 UI；否则模板拿到旧 `sectionOrder` 仍会漏渲染科研经历。
-- 操作：
-  - 修改 `src/store/useResumeStore.ts`。
-  - import `normalizeSectionOrder`。
-  - 初始状态保持：`sectionOrder: normalizeSectionOrder(DEFAULT_SECTION_ORDER)`。
-  - 修改 `setSectionOrder(order)`：写入前必须 `normalizeSectionOrder(order)`。
-  - 修改 `persist.merge`：
-    - 当前 `...p` 会把旧 `sectionOrder` 带回 store；必须在返回对象中覆盖为：
-      ```ts
-      sectionOrder: normalizeSectionOrder(p.sectionOrder),
-      ```
-    - 若 `p.sectionOrder` 缺少 `researchExperience`，merge 后必须自动补齐。
-  - 修改 `loadResumeData()` 不需要处理 layout；但如果当前实现会导入 layout 字段，必须同样归一化。
-  - 修改 `resetResumeData()`：重置 data 时不强制重置排序；若当前 UX 期望重置全部，则同时设为 `normalizeSectionOrder(DEFAULT_SECTION_ORDER)`，并在 report 说明实际行为。
-- 验证：
-  - `npm run build`
-  - 浏览器已有旧 localStorage 且 `sectionOrder` 不含 `researchExperience` 时，刷新后 store 中自动包含该 section。
-  - 手动调用 `setSectionOrder(["projects", "education"])` 后，store 中仍补齐所有合法 section。
-
-### Step 3：[DONE] 修复科研经历模板不显示 bug
-- **scope: review**
-- 变更说明：这是用户明确反馈的 bug，必须优先验证四套模板。
-- 操作：
-  - 修改 `src/components/templates/ClassicTemplate.tsx`、`ModernTemplate.tsx`、`MinimalTemplate.tsx`、`CompactTemplate.tsx`。
-  - 在每套模板入口中对传入的 `sectionOrder` 执行：
-    ```ts
-    const normalizedSectionOrder = normalizeSectionOrder(sectionOrder);
-    ```
-  - 所有 `visibleSections` / `visibleMainSections` 都必须基于 `normalizedSectionOrder`，不得直接使用 props 中的原始 `sectionOrder`。
-  - 确认四套模板的 renderer map 都包含：
-    - `researchExperience: renderResearchExperience`
-    - `skills: renderSkills`
-  - 确认 `emphasis.researchExperience === "hidden"` 时不渲染。
-  - 不要通过硬编码“总是显示科研经历”修复；必须尊重 `sectionOrder` 与 `emphasis`。
-- 验证：
-  - 构造旧 localStorage：`sectionOrder` 不含 `researchExperience`，但 `data.researchExperience` 有内容。
-  - 刷新后点击展示设置中“科研经历：显示”，Classic / Modern / Minimal / Compact 四套模板都能渲染科研经历。
-  - 点击“隐藏”后四套模板均不显示科研经历。
-
-### Step 4：[DONE] 展示设置支持拖动排序
-- **scope: review**
-- 变更说明：排序是用户可见交互，必须避免只改数组不改模板。
-- 操作：
-  - 修改 `src/components/editor/LayoutControls.tsx`。
-  - 使用 `getControllableSectionOrder(sectionOrder)` 生成展示列表。
-  - 每个 section 卡片增加拖拽手柄，例如 `⋮⋮`，并设置：
-    - `draggable={true}`
-    - `onDragStart`
-    - `onDragOver={(e) => e.preventDefault()}`
-    - `onDrop`
-  - 维护局部 state：
-    ```ts
-    const [draggingSection, setDraggingSection] = useState<SectionKey | null>(null);
-    ```
-  - drop 时生成新顺序：
-    ```ts
-    setSectionOrder(["personalInfo", ...nextControllableOrder]);
-    ```
-  - 拖动时不得改变 `emphasis`，不得删除已填写内容。
-  - 为没有鼠标拖拽能力的场景保留上移/下移按钮，按钮文案通过 i18n：`layout.moveUp` / `layout.moveDown`。
-  - 当前图中“显示/隐藏”按钮保留在右侧；拖拽手柄放在左侧，不得影响点击显示/隐藏。
-- 验证：
-  - 在展示设置中把“项目经历”拖到“教育背景”上方，预览中项目经历也出现在教育背景上方。
-  - 刷新页面后排序保持。
-  - 隐藏一个模块后再拖拽其它模块，隐藏状态不丢失。
-
-### Step 5：[DONE] 四套模板统一按 sectionOrder 渲染可控模块
-- **scope: review**
-- 变更说明：拖拽排序必须对简历页面生效，不能只改变展示设置列表顺序。
-- 操作：
-  - 修改 `ClassicTemplate.tsx`、`MinimalTemplate.tsx`、`CompactTemplate.tsx`：
-    - 除 `personalInfo` 外，所有 section 都通过 `normalizedSectionOrder` 顺序渲染。
-    - `sectionRenderers` 必须包含 `education/researchExperience/honors/experience/projects/campusActivities/skills`。
-  - 修改 `ModernTemplate.tsx`：
-    - `personalInfo` 保留在 sidebar 顶部。
-    - `skills` 不再强制固定在 sidebar；新增 `renderSkills()` 到 main renderers。
-    - `mainSections` 必须包含所有可控 section：
-      `education/researchExperience/honors/experience/projects/campusActivities/skills`。
-    - `visibleMainSections` 按 `normalizedSectionOrder` 过滤，不得使用固定数组顺序。
-  - 若担心 Modern 的 sidebar 过空，只允许在 sidebar 保留个人信息，不要复制技能到 sidebar 造成重复显示。
-- 验证：
-  - 四套模板中拖动“技能特长”到“教育背景”上方后，技能模块确实在教育背景前显示。
-  - 四套模板中拖动“科研经历”到“项目经历”下方后，科研经历确实移动到项目经历后。
-  - Modern 模板中技能不再同时出现在 sidebar 与 main area。
-
-### Step 6：[DONE] 新增图片文件读取与校验工具
-- **scope: auto**
-- 变更说明：图片读取与校验逻辑不要塞在表单组件里。
-- 操作：
-  - 新建 `src/lib/image/avatarImage.ts`。
-  - 导出常量：
-    ```ts
-    export const AVATAR_ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
-    export const AVATAR_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
-    export const AVATAR_CROP_ASPECT_RATIO = 3 / 4;
-    export const AVATAR_OUTPUT_WIDTH = 360;
-    export const AVATAR_OUTPUT_HEIGHT = 480;
-    ```
-  - 新增 `validateAvatarFile(file: File): string | null`：
-    - 非图片类型返回 i18n key 或错误码：`avatar.invalidType`
-    - 超过 5MB 返回：`avatar.fileTooLarge`
-  - 新增 `readFileAsDataUrl(file: File): Promise<string>`，内部使用 `FileReader.readAsDataURL()`。
-  - 新增 `loadImage(dataUrl: string): Promise<HTMLImageElement>`。
-- 验证：`npm run build`
-
-### Step 7：[DONE] 实现本地图片裁剪组件
-- **scope: review**
-- 变更说明：裁剪交互复杂但不需要第三方库；按固定比例做最小可用实现。
-- 操作：
-  - 新建 `src/components/ui/ImageCropper.tsx`。
-  - Props：
-    ```ts
-    interface ImageCropperProps {
-      imageDataUrl: string;
-      onCancel: () => void;
-      onConfirm: (croppedDataUrl: string) => void;
-      language: "zh" | "en";
-    }
-    ```
-  - UI：
-    - 固定 3:4 裁剪框预览。
-    - 图片可拖动调整位置。
-    - zoom slider，范围 `1` 到 `3`，步进 `0.01`。
-    - “确认裁剪”与“取消”按钮。
-  - 裁剪输出：
-    - 使用 `<canvas>`。
-    - 输出尺寸固定 `AVATAR_OUTPUT_WIDTH x AVATAR_OUTPUT_HEIGHT`。
-    - `canvas.toDataURL("image/jpeg", 0.9)`。
-  - 不处理 EXIF 旋转；若用户上传方向错误，提示重新选择已旋转图片。
-- 验证：
-  - `npm run build`
-  - 上传横图、竖图都能裁剪为 3:4 证件照。
-  - 确认裁剪后返回的 data URL 可直接用于 `<img src>`。
-
-### Step 8：[DONE] 接入 PersonalInfoForm 本地上传、裁剪与删除
-- **scope: review**
-- 变更说明：保留 URL 输入，同时新增本地文件上传入口。
-- 操作：
-  - 修改 `src/components/editor/PersonalInfoForm.tsx`。
-  - 在当前 `avatarUrl` 输入区域改造成“证件照”控制组：
-    - URL 输入框：仍绑定 `info.avatarUrl`，允许用户粘贴远程 URL 或 data URL。
-    - 文件选择按钮：`<input type="file" accept="image/jpeg,image/png,image/webp" />`。
-    - 删除照片按钮：`setPersonalInfo({ avatarUrl: "" })`。
-    - 小预览区域：显示当前照片或占位。
-  - 选择本地文件后：
-    - 调用 `validateAvatarFile(file)`。
-    - 调用 `readFileAsDataUrl(file)`。
-    - 打开 `ImageCropper`。
-    - 裁剪确认后 `setPersonalInfo({ avatarUrl: croppedDataUrl })`。
-  - 不把原始大图写入 store；只写入裁剪后的 base64。
-  - 新增 i18n key：
-    - `personalInfo.avatarUpload`
-    - `personalInfo.avatarRemove`
-    - `personalInfo.avatarPreview`
-    - `avatar.invalidType`
-    - `avatar.fileTooLarge`
-    - `avatar.cropConfirm`
-    - `avatar.cropCancel`
-    - `avatar.zoom`
-- 验证：
-  - 选择本地图片 → 裁剪 → 确认后四套模板实时显示照片。
-  - 刷新页面后照片仍保留。
-  - 点击删除照片后四套模板恢复固定占位。
-  - 粘贴 URL 仍可正常显示照片。
-
-### Step 9：[DONE] 小幅放大四套模板证件照尺寸
-- **scope: auto**
-- 变更说明：用户要求证件照可以稍大一点，但不能过多挤压内容。
-- 操作：
-  - 修改 `src/lib/templates/designTokens.ts` 中 `RESUME_TOKENS.photo`：
-    ```ts
-    photo: {
-      classic: { width: 84, height: 112 },
-      modern: { width: 80, height: 106 },
-      minimal: { width: 80, height: 106 },
-      compact: { width: 66, height: 88 },
-    }
-    ```
-  - 不在模板文件里散落尺寸常量；所有模板继续读取 token。
-  - 如放大后 Classic / Minimal header 挤压 summary，优先调整 header gap 或 contact 行距，不继续增大照片。
-- 验证：
-  - `npm run build`
-  - 四套模板照片略大于 v5，但姓名、联系方式、summary 不重叠、不溢出。
-  - 打印导出页 `/export` 中照片尺寸与预览一致。
-
-### Step 10：[DONE] 验收、记录与报告更新
-- **scope: review**
-- 变更说明：本轮含一个已报告 bug 和两个交互变更，报告必须明确验证结果。
-- 操作：
-  - 修改 `docs/issues.md`，追加：
-    - `[Fixed] I-9-avatar-local-upload-crop — 2026-05-06`
-    - `[Fixed] I-10-layout-controls-drag-sort — 2026-05-06`
-    - `[Fixed] I-11-research-section-order-visibility — 2026-05-06`
-  - 修改 `docs/report.md`：
-    - `STATUS` 根据实际结果设置为 `ALL_CLEAR`、`ACCEPTED_MANUAL_QA` 或 `NEEDS_ESCALATION`。
-    - `Last Execution` 写明来源 `dispatch:patch (v6)`。
-    - `Completed` 列出模块 12 Step 1-10 的完成情况。
-    - `Verification Results` 至少记录：
-      - `npm run build`
-      - 本地图片上传、裁剪、刷新后保留、删除照片。
-      - 拖动排序后四套模板顺序变化，刷新后保持。
-      - 旧 localStorage 缺失 `researchExperience` 的场景修复。
-      - 打印导出页 `/export` 与预览一致。
-    - 若 `npm run lint` / `npm run test:visual` 仍受旧问题影响，继续列入 `Discovered Issues`，不得写成已修复。
-- 验证：
-  - `npm run build`
-  - 手动 QA：四套模板 + `/export` 完整通过。
-  - `docs/report.md` 与实际验证结果一致。
-
----
-
 ## v5 变更对照
 
 | 变更点 | 受影响文件 | 处理方式 | scope |
@@ -1068,19 +797,3 @@
 | 科研经历模板渲染 | 四套模板 | 新增 `renderResearchExperience()`，遵守 `sectionOrder` 与 `emphasis` | review |
 | JSON / demo 兼容 | `src/lib/export/json.ts`, `src/lib/demoData.ts` | 旧数据补 `[]`，demo 增加示例 | auto |
 | 验收记录 | `docs/issues.md`, `docs/report.md` | 记录 v5 fixed 与验证结果 | review |
-
-
----
-
-## v6 变更对照
-
-| 变更点 | 受影响文件 | 处理方式 | scope |
-|---|---|---|---|
-| sectionOrder 归一化 | `src/lib/resume/sectionOrder.ts`, `src/store/useResumeStore.ts` | 新增统一 helper；store 初始值、set、persist.merge 全部归一化 | review |
-| 科研经历显示 bug | 四套模板、`useResumeStore.ts` | 旧 `sectionOrder` 缺少 `researchExperience` 时自动补齐，模板入口再做防御归一化 | review |
-| 展示设置拖拽排序 | `src/components/editor/LayoutControls.tsx`, i18n | HTML5 drag/drop + 上移/下移按钮，写入 `setSectionOrder()` | review |
-| 排序影响模板 | `ClassicTemplate.tsx`, `ModernTemplate.tsx`, `MinimalTemplate.tsx`, `CompactTemplate.tsx` | 除 `personalInfo` 外所有模块按 `sectionOrder` 渲染；Modern 的 skills 进入主内容区 | review |
-| 本地证件照上传 | `PersonalInfoForm.tsx`, `src/lib/image/avatarImage.ts` | File input + FileReader data URL + 文件类型/大小校验 | review |
-| 图片裁剪 | `src/components/ui/ImageCropper.tsx` | Canvas 输出 3:4、360x480、JPEG quality 0.9 的 data URL | review |
-| 证件照尺寸小幅放大 | `src/lib/templates/designTokens.ts` | token 统一调大到 Classic 84x112、Modern/Minimal 80x106、Compact 66x88 | auto |
-| 验收记录 | `docs/issues.md`, `docs/report.md` | 记录 v6 fixed 项与手动验证结果 | review |

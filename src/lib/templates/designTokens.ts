@@ -45,9 +45,9 @@ export const RESUME_TOKENS = {
     tag: 3,
   },
   photo: {
-    classic: { width: 76, height: 100 },
-    modern: { width: 72, height: 96 },
-    minimal: { width: 72, height: 96 },
-    compact: { width: 60, height: 80 },
+    classic: { width: 84, height: 112 },
+    modern: { width: 80, height: 106 },
+    minimal: { width: 80, height: 106 },
+    compact: { width: 66, height: 88 },
   },
 } as const;
