@@ -71,7 +71,17 @@ export interface CampusActivity {
   highlights: BilingualText[];
 }
 
-export type SectionKey = 'personalInfo' | 'education' | 'honors' | 'experience' | 'projects' | 'campusActivities' | 'skills';
+export interface ResearchExperience {
+  id: string;
+  institution: BilingualText;
+  project: BilingualText;
+  role: BilingualText;
+  period: string;
+  description: BilingualText;
+  highlights: BilingualText[];
+}
+
+export type SectionKey = 'personalInfo' | 'education' | 'researchExperience' | 'honors' | 'experience' | 'projects' | 'campusActivities' | 'skills';
 
 export type SectionEmphasis = 'expanded' | 'normal' | 'compact' | 'hidden';
 
@@ -82,6 +92,7 @@ export interface ResumeData {
   experience: Experience[];
   projects: Project[];
   campusActivities: CampusActivity[];
+  researchExperience: ResearchExperience[];
   skills: SkillCategory[];
 }
 
@@ -120,12 +131,14 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
   experience: [],
   projects: [],
   campusActivities: [],
+  researchExperience: [],
   skills: [],
 };
 
 export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   'personalInfo',
   'education',
+  'researchExperience',
   'honors',
   'experience',
   'projects',
@@ -136,6 +149,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
 export const SECTION_LABELS: Record<SectionKey, BilingualText> = {
   personalInfo: { zh: '基本信息', en: 'Personal Info' },
   education: { zh: '教育背景', en: 'Education' },
+  researchExperience: { zh: '科研经历', en: 'Research Experience' },
   honors: { zh: '荣誉奖项', en: 'Honors & Awards' },
   experience: { zh: '实习经历', en: 'Internship' },
   projects: { zh: '项目经历', en: 'Projects' },

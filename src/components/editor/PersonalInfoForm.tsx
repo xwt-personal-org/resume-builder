@@ -150,6 +150,17 @@ export function PersonalInfoForm() {
       </div>
 
       <div>
+        <label className="field-label">{t("personalInfo.avatarUrl")}</label>
+        <input
+          type="url"
+          value={info.avatarUrl}
+          onChange={(e) => setPersonalInfo({ avatarUrl: e.target.value })}
+          className="field-input"
+          placeholder="https://example.com/photo.jpg"
+        />
+      </div>
+
+      <div>
         <label className="field-label">{t("personalInfo.summaryZh")}</label>
         <textarea
           value={info.summary.zh}

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ResumeData, TemplateName, SectionKey, SectionEmphasis, Education, Honor, Experience, Project, CampusActivity, SkillCategory } from '@/types';
+import type { ResumeData, TemplateName, SectionKey, SectionEmphasis, Education, Honor, Experience, Project, CampusActivity, ResearchExperience, SkillCategory } from '@/types';
 import { DEFAULT_RESUME_DATA, DEFAULT_SECTION_ORDER } from '@/types';
 import { DEMO_RESUME_DATA } from '@/lib/demoData';
 import { v4 as uuidv4 } from 'uuid';
@@ -35,6 +35,10 @@ interface ResumeState {
   addCampusActivity: (act?: Partial<ResumeData['campusActivities'][0]>) => void;
   updateCampusActivity: (id: string, updates: Partial<ResumeData['campusActivities'][0]>) => void;
   removeCampusActivity: (id: string) => void;
+
+  addResearchExperience: (item?: Partial<ResumeData['researchExperience'][0]>) => void;
+  updateResearchExperience: (id: string, updates: Partial<ResumeData['researchExperience'][0]>) => void;
+  removeResearchExperience: (id: string) => void;
 
   addSkillCategory: (cat?: Partial<ResumeData['skills'][0]>) => void;
   updateSkillCategory: (id: string, updates: Partial<ResumeData['skills'][0]>) => void;
@@ -197,6 +201,32 @@ export const useResumeStore = create<ResumeState>()(
           data: { ...state.data, campusActivities: state.data.campusActivities.filter((a) => a.id !== id) },
         })),
 
+      addResearchExperience: (item) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            researchExperience: [...state.data.researchExperience, {
+              id: uuidv4(),
+              institution: item?.institution ?? { zh: '', en: '' },
+              project: item?.project ?? { zh: '', en: '' },
+              role: item?.role ?? { zh: '', en: '' },
+              period: item?.period ?? '',
+              description: item?.description ?? { zh: '', en: '' },
+              highlights: item?.highlights ?? [],
+            }],
+          },
+        })),
+
+      updateResearchExperience: (id, updates) =>
+        set((state) => ({
+          data: { ...state.data, researchExperience: state.data.researchExperience.map((r) => r.id === id ? { ...r, ...updates } : r) },
+        })),
+
+      removeResearchExperience: (id) =>
+        set((state) => ({
+          data: { ...state.data, researchExperience: state.data.researchExperience.filter((r) => r.id !== id) },
+        })),
+
       addSkillCategory: (cat) =>
         set((state) => ({
           data: {
@@ -259,6 +289,10 @@ export const useResumeStore = create<ResumeState>()(
             id: a.id || uuidv4(), organization: a.organization || { zh: '', en: '' }, role: a.role || { zh: '', en: '' },
             period: a.period || '', description: a.description || { zh: '', en: '' }, highlights: a.highlights || [],
           })),
+          researchExperience: (data.researchExperience || []).map((r: Partial<ResearchExperience>) => ({
+            id: r.id || uuidv4(), institution: r.institution || { zh: '', en: '' }, project: r.project || { zh: '', en: '' },
+            role: r.role || { zh: '', en: '' }, period: r.period || '', description: r.description || { zh: '', en: '' }, highlights: r.highlights || [],
+          })),
           skills: (data.skills || []).map((s: Partial<SkillCategory>) => ({
             id: s.id || uuidv4(), category: s.category || { zh: '', en: '' }, items: s.items || [],
           })),
@@ -299,6 +333,10 @@ export const useResumeStore = create<ResumeState>()(
             campusActivities: (d.campusActivities || []).map((a: Partial<CampusActivity>) => ({
               id: a.id || uuidv4(), organization: a.organization || { zh: '', en: '' }, role: a.role || { zh: '', en: '' },
               period: a.period || '', description: a.description || { zh: '', en: '' }, highlights: a.highlights || [],
+            })),
+            researchExperience: (d.researchExperience || []).map((r: Partial<ResearchExperience>) => ({
+              id: r.id || uuidv4(), institution: r.institution || { zh: '', en: '' }, project: r.project || { zh: '', en: '' },
+              role: r.role || { zh: '', en: '' }, period: r.period || '', description: r.description || { zh: '', en: '' }, highlights: r.highlights || [],
             })),
             skills: (d.skills || []).map((s: Partial<SkillCategory>) => ({
               id: s.id || uuidv4(), category: s.category || { zh: '', en: '' }, items: s.items || [],

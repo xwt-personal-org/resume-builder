@@ -24,6 +24,7 @@ function getText(b: { zh: string; en: string } | undefined | null, lang: "zh" | 
 const SECTION_LABELS: Record<SectionKey, { zh: string; en: string }> = {
   personalInfo: { zh: "基本信息", en: "Personal Info" },
   education: { zh: "教育背景", en: "Education" },
+  researchExperience: { zh: "科研经历", en: "Research Experience" },
   honors: { zh: "荣誉奖项", en: "Honors & Awards" },
   experience: { zh: "实习经历", en: "Internship" },
   projects: { zh: "项目经历", en: "Projects" },

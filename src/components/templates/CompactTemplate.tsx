@@ -13,6 +13,22 @@ interface TemplateProps {
 const TOKENS = RESUME_TOKENS;
 const C = RESUME_TOKENS.colors;
 
+function PhotoSlot({ src, language, width, height }: { src: string; language: "zh" | "en"; width: number; height: number }) {
+  if (src) {
+    return (
+      <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", overflow: "hidden", flexShrink: 0, border: "1px solid #d1d5db" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", flexShrink: 0, border: "1px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", color: "#9ca3af" }}>
+      {language === "zh" ? "证件照" : "Photo"}
+    </div>
+  );
+}
+
 export function CompactTemplate({ data, sectionOrder, emphasis, language }: TemplateProps) {
   const getText = (b: { zh: string; en: string } | undefined | null) =>
     language === "zh" ? (b?.zh || b?.en || "") : (b?.en || b?.zh || "");
@@ -20,6 +36,7 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
   const sectionLabel: Record<SectionKey, string> = {
     personalInfo: "",
     education: language === "zh" ? "教育背景" : "Education",
+    researchExperience: language === "zh" ? "科研经历" : "Research",
     honors: language === "zh" ? "荣誉奖项" : "Honors",
     experience: language === "zh" ? "实习经历" : "Experience",
     projects: language === "zh" ? "项目经历" : "Projects",
@@ -62,20 +79,25 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
 
     return (
       <div style={{ marginBottom: "6px" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-          <span style={{ fontSize: "18px", fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{name}</span>
-          {title && <span style={{ fontSize: "12px", fontWeight: 400, color: C.textSecondary }}>{title}</span>}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px" }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+              <span style={{ fontSize: "18px", fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{name}</span>
+              {title && <span style={{ fontSize: "12px", fontWeight: 400, color: C.textSecondary }}>{title}</span>}
+            </div>
+            {contactParts.length > 0 && (
+              <div style={{ fontSize: "10px", color: C.textSecondary, marginTop: "2px", lineHeight: 1.4 }}>
+                {contactParts.join(" | ")}
+              </div>
+            )}
+            {getText(info.summary) && (
+              <div style={{ fontSize: "10px", fontStyle: "italic", color: C.textMuted, marginTop: "3px", lineHeight: 1.45 }}>
+                {getText(info.summary)}
+              </div>
+            )}
+          </div>
+          <PhotoSlot src={info.avatarUrl} language={language} width={TOKENS.photo.compact.width} height={TOKENS.photo.compact.height} />
         </div>
-        {contactParts.length > 0 && (
-          <div style={{ fontSize: "10px", color: C.textSecondary, marginTop: "2px", lineHeight: 1.4 }}>
-            {contactParts.join(" | ")}
-          </div>
-        )}
-        {getText(info.summary) && (
-          <div style={{ fontSize: "10px", fontStyle: "italic", color: C.textMuted, marginTop: "3px", lineHeight: 1.45 }}>
-            {getText(info.summary)}
-          </div>
-        )}
       </div>
     );
   };
@@ -114,6 +136,37 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
             </div>
           );
         })}
+      </div>
+    );
+  };
+
+  const renderResearchExperience = () => {
+    if (!data.researchExperience || data.researchExperience.length === 0) return null;
+    return (
+      <div style={{ marginBottom: "8px" }}>
+        {renderSectionHeader(sectionLabel.researchExperience)}
+        {data.researchExperience.map((item) => (
+          <div key={item.id} style={{ marginBottom: "4px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span style={{ fontWeight: 600, fontSize: "10.5px", color: C.text }}>
+                {getText(item.project) || getText(item.institution)} · {getText(item.role)}
+              </span>
+              <span style={{ fontSize: "10px", color: C.textMuted, flexShrink: 0 }}>{item.period}</span>
+            </div>
+            {getText(item.description) && (
+              <div style={{ fontSize: "10px", color: C.textSecondary, lineHeight: 1.45, marginTop: "1px" }}>
+                {getText(item.description)}
+              </div>
+            )}
+            {item.highlights && item.highlights.length > 0 && (
+              <ul style={{ margin: "1px 0 0 0", paddingLeft: "14px", fontSize: "10.5px", color: C.textSecondary }}>
+                {item.highlights.map((h, i) => (
+                  <li key={i} style={{ lineHeight: 1.45 }}>{getText(h)}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
       </div>
     );
   };
@@ -282,6 +335,7 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
   const sectionRenderers: Record<SectionKey, () => React.ReactNode> = {
     personalInfo: renderPersonalInfo,
     education: renderEducation,
+    researchExperience: renderResearchExperience,
     honors: renderHonors,
     experience: renderExperience,
     projects: renderProjects,

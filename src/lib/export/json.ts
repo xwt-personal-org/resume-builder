@@ -60,6 +60,15 @@ function mergeWithDefaults(data: Partial<ResumeData>): ResumeData {
       category: cat.category || { zh: "", en: "" },
       items: cat.items || [],
     })) : [],
+    researchExperience: Array.isArray(data.researchExperience) ? data.researchExperience.map((r: any) => ({
+      id: r.id || "",
+      institution: r.institution || { zh: "", en: "" },
+      project: r.project || { zh: "", en: "" },
+      role: r.role || { zh: "", en: "" },
+      period: r.period || "",
+      description: r.description || { zh: "", en: "" },
+      highlights: r.highlights || [],
+    })) : [],
   };
 }
 

@@ -25,12 +25,29 @@ const SECTION_LINE = C.accentBlue;
 const SECTION_LABELS: Record<SectionKey, { zh: string; en: string }> = {
   personalInfo: { zh: "基本信息", en: "Personal Info" },
   education: { zh: "教育背景", en: "Education" },
+  researchExperience: { zh: "科研经历", en: "Research Experience" },
   honors: { zh: "荣誉奖项", en: "Honors & Awards" },
   experience: { zh: "实习经历", en: "Internship" },
   projects: { zh: "项目经历", en: "Projects" },
   campusActivities: { zh: "校园经历", en: "Campus Activities" },
   skills: { zh: "技能特长", en: "Skills" },
 };
+
+function PhotoSlot({ src, language, width, height }: { src: string; language: "zh" | "en"; width: number; height: number }) {
+  if (src) {
+    return (
+      <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", overflow: "hidden", flexShrink: 0, border: "1px solid #d1d5db" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", flexShrink: 0, border: "1px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", color: "#9ca3af" }}>
+      {language === "zh" ? "证件照" : "Photo"}
+    </div>
+  );
+}
 
 export function ModernTemplate({
   data,
@@ -50,43 +67,9 @@ export function ModernTemplate({
 
     return (
       <div>
-        {info.avatarUrl ? (
-          <div
-            style={{
-              width: "72px",
-              height: "72px",
-              borderRadius: "50%",
-              overflow: "hidden",
-              margin: "0 auto 10px",
-              border: "2px solid rgba(255,255,255,0.3)",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={info.avatarUrl}
-              alt=""
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          </div>
-        ) : (
-          <div
-            style={{
-              width: "72px",
-              height: "72px",
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.15)",
-              margin: "0 auto 10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "28px",
-              color: SIDEBAR_TEXT_LIGHT,
-              fontWeight: 300,
-            }}
-          >
-            {name ? name.charAt(0) : ""}
-          </div>
-        )}
+        <div style={{ margin: "0 auto 10px", display: "flex", justifyContent: "center" }}>
+          <PhotoSlot src={info.avatarUrl} language={language} width={TOKENS.photo.modern.width} height={TOKENS.photo.modern.height} />
+        </div>
         <div
           style={{
             fontSize: "20px",
@@ -284,6 +267,88 @@ export function ModernTemplate({
             </div>
           );
         })}
+      </div>
+    );
+  };
+
+  const renderResearchExperience = () => {
+    if (!data.researchExperience || data.researchExperience.length === 0) return null;
+    return (
+      <div style={{ marginBottom: "12px" }}>
+        {renderMainSectionHeader("researchExperience")}
+        {data.researchExperience.map((item, idx) => (
+          <div
+            key={item.id}
+            style={{
+              marginBottom: idx < data.researchExperience.length - 1 ? "8px" : 0,
+              paddingBottom: idx < data.researchExperience.length - 1 ? "8px" : 0,
+              borderBottom:
+                idx < data.researchExperience.length - 1
+                  ? `1px solid ${MAIN_BORDER}`
+                  : "none",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+              }}
+            >
+              <div>
+                <span
+                  style={{ fontWeight: 600, fontSize: "11px", color: MAIN_TEXT }}
+                >
+                  {getText(item.project) || getText(item.institution)}
+                </span>
+                {getText(item.role) && (
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: MAIN_TEXT_SECONDARY,
+                      fontWeight: 400,
+                    }}
+                  >
+                    {" · "}
+                    {getText(item.role)}
+                  </span>
+                )}
+              </div>
+              <span
+                style={{
+                  fontSize: "10px",
+                  color: MAIN_TEXT_MUTED,
+                  flexShrink: 0,
+                }}
+              >
+                {item.period}
+              </span>
+            </div>
+            <div style={{ fontSize: "10px", color: MAIN_TEXT_MUTED, marginTop: "1px" }}>
+              {getText(item.institution)}
+            </div>
+            {getText(item.description) && (
+              <div style={{ fontSize: "10.5px", color: MAIN_TEXT_SECONDARY, lineHeight: 1.6, marginTop: "2px" }}>
+                {getText(item.description)}
+              </div>
+            )}
+            {item.highlights && item.highlights.length > 0 && (
+              <ul
+                style={{
+                  margin: "3px 0 0 0",
+                  paddingLeft: "14px",
+                  fontSize: "10.5px",
+                  color: MAIN_TEXT_SECONDARY,
+                  lineHeight: 1.6,
+                }}
+              >
+                {item.highlights.map((h, i) => (
+                  <li key={i}>{getText(h)}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
       </div>
     );
   };
@@ -597,6 +662,7 @@ export function ModernTemplate({
 
   const mainSections: SectionKey[] = [
     "education",
+    "researchExperience",
     "honors",
     "experience",
     "projects",
@@ -610,6 +676,7 @@ export function ModernTemplate({
 
   const mainRenderers: Record<string, () => React.ReactNode> = {
     education: renderEducation,
+    researchExperience: renderResearchExperience,
     honors: renderHonors,
     experience: renderExperience,
     projects: renderProjects,

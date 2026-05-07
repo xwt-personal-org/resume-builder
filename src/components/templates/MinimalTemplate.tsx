@@ -20,6 +20,22 @@ const C = {
   bg: "#fff",
 };
 
+function PhotoSlot({ src, language, width, height }: { src: string; language: "zh" | "en"; width: number; height: number }) {
+  if (src) {
+    return (
+      <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", overflow: "hidden", flexShrink: 0, border: "1px solid #d1d5db" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", flexShrink: 0, border: "1px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", color: "#9ca3af" }}>
+      {language === "zh" ? "证件照" : "Photo"}
+    </div>
+  );
+}
+
 export function MinimalTemplate({ data, sectionOrder, emphasis, language }: TemplateProps) {
   const getText = (b: { zh: string; en: string } | undefined | null) =>
     language === "zh" ? (b?.zh || b?.en || "") : (b?.en || b?.zh || "");
@@ -27,6 +43,7 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
   const sectionRenderers: Record<SectionKey, () => React.ReactNode> = {
     personalInfo: renderPersonalInfo,
     education: renderEducation,
+    researchExperience: renderResearchExperience,
     honors: renderHonors,
     experience: renderExperience,
     projects: renderProjects,
@@ -83,53 +100,58 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
 
     return (
       <div style={{ marginBottom: 6 }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-          <span
-            style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: C.text,
-              lineHeight: 1.3,
-            }}
-          >
-            {name}
-          </span>
-          {title && (
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 400,
-                color: C.secondary,
-              }}
-            >
-              {title}
-            </span>
-          )}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span
+                style={{
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: C.text,
+                  lineHeight: 1.3,
+                }}
+              >
+                {name}
+              </span>
+              {title && (
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 400,
+                    color: C.secondary,
+                  }}
+                >
+                  {title}
+                </span>
+              )}
+            </div>
+            {contactParts.length > 0 && (
+              <div
+                style={{
+                  fontSize: 10,
+                  color: C.secondary,
+                  marginTop: 3,
+                  lineHeight: 1.5,
+                }}
+              >
+                {contactParts.join(" | ")}
+              </div>
+            )}
+            {getText(info.summary) && (
+              <div
+                style={{
+                  fontSize: 10,
+                  color: C.muted,
+                  marginTop: 4,
+                  lineHeight: 1.6,
+                }}
+              >
+                {getText(info.summary)}
+              </div>
+            )}
+          </div>
+          <PhotoSlot src={info.avatarUrl} language={language} width={TOKENS.photo.minimal.width} height={TOKENS.photo.minimal.height} />
         </div>
-        {contactParts.length > 0 && (
-          <div
-            style={{
-              fontSize: 10,
-              color: C.secondary,
-              marginTop: 3,
-              lineHeight: 1.5,
-            }}
-          >
-            {contactParts.join(" | ")}
-          </div>
-        )}
-        {getText(info.summary) && (
-          <div
-            style={{
-              fontSize: 10,
-              color: C.muted,
-              marginTop: 4,
-              lineHeight: 1.6,
-            }}
-          >
-            {getText(info.summary)}
-          </div>
-        )}
       </div>
     );
   }
@@ -177,6 +199,54 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
                 <div style={{ fontSize: 10, color: C.muted, marginTop: TOKENS.spacing.paragraphTop, lineHeight: 1.5 }}>
                   {getText(edu.description)}
                 </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function renderResearchExperience() {
+    if (!data.researchExperience || data.researchExperience.length === 0) return null;
+    return (
+      <div>
+        <SectionHeader label={language === "zh" ? "科研经历" : "Research Experience"} />
+        {data.researchExperience.map((item) => {
+          const project = getText(item.project) || getText(item.institution);
+          const role = getText(item.role);
+          return (
+            <div key={item.id} style={{ marginTop: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <span style={{ fontSize: 11, color: C.text }}>
+                  <span style={{ fontWeight: 600 }}>{project}</span>
+                  {role && (
+                    <span style={{ fontWeight: 400, color: C.secondary }}> · {role}</span>
+                  )}
+                </span>
+                <span style={{ fontSize: 10, color: C.muted, flexShrink: 0, marginLeft: 8 }}>
+                  {item.period}
+                </span>
+              </div>
+              {getText(item.description) && (
+                <div style={{ fontSize: 10, color: C.muted, marginTop: 2, lineHeight: 1.6 }}>
+                  {getText(item.description)}
+                </div>
+              )}
+              {item.highlights && item.highlights.length > 0 && (
+                <ul
+                  style={{
+                    margin: "2px 0 0 0",
+                    paddingLeft: 14,
+                    fontSize: 10,
+                    color: C.muted,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {item.highlights.map((h, i) => (
+                    <li key={i}>{getText(h)}</li>
+                  ))}
+                </ul>
               )}
             </div>
           );

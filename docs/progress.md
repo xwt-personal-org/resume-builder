@@ -1,10 +1,10 @@
 # 开发进度（当前 Web 版基线）
 
 ## 当前状态
-- 当前阶段：v4 patch - 模块 10：项目经历分条亮点改造
-- 最后更新：2026-05-05
+- 当前阶段：v5 patch - 模块 11：证件照模板位与科研经历模块
+- 最后更新：2026-05-06
 - 状态：merge-back 完成，实现待执行
-- 说明：v4 在 v3 基线之上新增项目经历双语分条亮点字段、编辑表单、模板渲染、JSON 兼容与视觉验收。
+- 说明：v5 在 v4 基线之上新增四套模板证件照模板位与科研经历同级模块。
 
 ## 模块进度
 
@@ -73,21 +73,32 @@
 - [x] Step 3：新增 PDF 下载验收测试
 - [x] Step 4：新增模块隐藏验收测试
 - [x] Step 5：改造导出验收测试为浏览器打印主链路
-- [ ] Step 6：稳定 popup print mock 并补充本轮测试 [ADDED v3，v4 保留]
+- [ ] Step 6：稳定 popup print mock 并补充本轮测试 [ADDED v3，v5 保留]
 
 ### 模块 9：本地后台进程控制
 - [x] Step 1：确认关闭网页不会同步关闭后台进程 [DONE]
 - [x] Step 2：新增 dev-only shutdown API route [DONE]
 - [x] Step 3：新增网页端关闭后台按钮 [DONE]
-- [x] Step 4：手动 QA 并关闭 I-5 issue [DONE]
-- [ ] Step 5：补齐运行控制视觉/集成验收 [v4 保留]
+- [x] Step 4：补齐关闭后台文案与手动 QA [DONE]
+- [ ] Step 5：修复 ShutdownButton Hooks 条件调用 lint [v5 保留]
 
-### 模块 10：项目经历分条亮点改造 [v4 新增]
-- [x] Step 1：扩展 Project 数据模型与示例数据 [DONE] 2026-05-05
-- [x] Step 2：补齐 store、JSON 导入导出与持久化兼容 [DONE] 2026-05-05
-- [x] Step 3：改造 ProjectForm 为双语分条亮点输入 [DONE] 2026-05-05
-- [x] Step 4：四套模板渲染项目亮点 bullet list [DONE] 2026-05-05
-- [x] Step 5：补充测试、快照与文档记录 [DONE] 2026-05-05
+### 模块 10：项目经历分条亮点改造 [v4 已完成]
+- [x] Step 1：扩展 Project 模型与 demo data [DONE]
+- [x] Step 2：补 Store 与 JSON 兼容 [DONE]
+- [x] Step 3：修改 ProjectForm 分条输入 [DONE]
+- [x] Step 4：四套模板渲染项目亮点 [DONE]
+- [x] Step 5：记录问题修复与手动验收 [DONE]
+
+### 模块 11：证件照模板位与科研经历模块 [v5 新增]
+- [ ] Step 1：扩展核心类型与默认模块顺序
+- [ ] Step 2：补个人信息表单的证件照 URL 输入
+- [ ] Step 3：新增科研经历 Store CRUD 与兼容归一化
+- [ ] Step 4：新增科研经历编辑器入口与表单
+- [ ] Step 5：统一四套模板证件照占位
+- [ ] Step 6：四套模板新增科研经历渲染
+- [ ] Step 7：补 JSON 导入导出与 demo data
+- [ ] Step 8：补 i18n 文案
+- [ ] Step 9：验收、记录与报告更新
 
 ## 已知问题摘要
 - `npm run test:visual` 仍有模板截图 baseline diff（v3 遗留）。

@@ -141,6 +141,23 @@ export const DEMO_RESUME_DATA: ResumeData = {
       highlights: [],
     },
   ],
+  researchExperience: [
+    {
+      id: uid(),
+      institution: { zh: "北京大学计算机视觉实验室", en: "PKU Computer Vision Lab" },
+      project: { zh: "基于深度学习的医学图像分割研究", en: "Deep Learning for Medical Image Segmentation" },
+      role: { zh: "研究助理", en: "Research Assistant" },
+      period: "2023.03 - 2023.12",
+      description: {
+        zh: "参与基于U-Net改进模型的CT图像器官分割课题，负责数据预处理与模型训练",
+        en: "Participated in CT image organ segmentation research using improved U-Net model, responsible for data preprocessing and model training",
+      },
+      highlights: [
+        { zh: "在公开数据集上达到Dice系数0.91，较基线提升3个百分点", en: "Achieved Dice coefficient of 0.91 on public dataset, improving baseline by 3 percentage points" },
+        { zh: "共同撰写论文摘要投递至MICCAI 2024", en: "Co-authored abstract submitted to MICCAI 2024" },
+      ],
+    },
+  ],
   skills: [
     {
       id: uid(),

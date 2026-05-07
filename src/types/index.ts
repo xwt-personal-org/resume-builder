@@ -1,2 +1,2 @@
-export type { ResumeData, PersonalInfo, Experience, Project, SkillCategory, Education, Honor, CampusActivity, SectionKey, SectionEmphasis, TemplateName, LayoutSuggestion, BilingualText } from './resume';
+export type { ResumeData, PersonalInfo, Experience, Project, SkillCategory, Education, Honor, CampusActivity, ResearchExperience, SectionKey, SectionEmphasis, TemplateName, LayoutSuggestion, BilingualText } from './resume';
 export { DEFAULT_RESUME_DATA, TEMPLATE_NAMES, SECTION_LABELS, DEFAULT_SECTION_ORDER } from './resume';

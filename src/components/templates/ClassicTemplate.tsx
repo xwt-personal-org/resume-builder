@@ -26,6 +26,22 @@ function SectionHead({ title }: { title: string }) {
   );
 }
 
+function PhotoSlot({ src, language, width, height }: { src: string; language: "zh" | "en"; width: number; height: number }) {
+  if (src) {
+    return (
+      <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", overflow: "hidden", flexShrink: 0, border: "1px solid #d1d5db" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: `${width}px`, height: `${height}px`, borderRadius: "2px", flexShrink: 0, border: "1px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", color: "#9ca3af" }}>
+      {language === "zh" ? "证件照" : "Photo"}
+    </div>
+  );
+}
+
 export function ClassicTemplate({ data, sectionOrder, emphasis, language }: TemplateProps) {
   const visibleSections = sectionOrder.filter(
     (key) => key === "personalInfo" || emphasis[key] !== "hidden"
@@ -40,19 +56,22 @@ export function ClassicTemplate({ data, sectionOrder, emphasis, language }: Temp
       info.phone, info.email, getText(info.location, language), info.website,
     ].filter(Boolean);
     return (
-      <div style={{ textAlign: "center", marginBottom: "6px", paddingBottom: "8px", borderBottom: `${TOKENS.line.sectionNormalPx}px solid ${C.line}` }}>
-        <div style={{ fontSize: `${TOKENS.fontSize.name}px`, fontWeight: 700, color: C.text, letterSpacing: "0" }}>{name}</div>
-        {getText(info.title, language) && (
-          <div style={{ fontSize: `${TOKENS.fontSize.sectionTitle}px`, color: C.textSecondary, marginTop: "2px" }}>{getText(info.title, language)}</div>
-        )}
-        {contactParts.length > 0 && (
-          <div style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary, marginTop: "6px" }}>
-            {contactParts.join(" | ")}
-          </div>
-        )}
-        {getText(info.summary, language) && (
-          <div style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary, marginTop: "10px", lineHeight: 1.5, textAlign: "left" }}>{getText(info.summary, language)}</div>
-        )}
+      <div style={{ display: "flex", gap: "14px", alignItems: "flex-start", marginBottom: "6px", paddingBottom: "8px", borderBottom: `${TOKENS.line.sectionNormalPx}px solid ${C.line}` }}>
+        <div style={{ flex: 1, textAlign: "center" }}>
+          <div style={{ fontSize: `${TOKENS.fontSize.name}px`, fontWeight: 700, color: C.text, letterSpacing: "0" }}>{name}</div>
+          {getText(info.title, language) && (
+            <div style={{ fontSize: `${TOKENS.fontSize.sectionTitle}px`, color: C.textSecondary, marginTop: "2px" }}>{getText(info.title, language)}</div>
+          )}
+          {contactParts.length > 0 && (
+            <div style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary, marginTop: "6px" }}>
+              {contactParts.join(" | ")}
+            </div>
+          )}
+          {getText(info.summary, language) && (
+            <div style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary, marginTop: "10px", lineHeight: 1.5, textAlign: "left" }}>{getText(info.summary, language)}</div>
+          )}
+        </div>
+        <PhotoSlot src={info.avatarUrl} language={language} width={TOKENS.photo.classic.width} height={TOKENS.photo.classic.height} />
       </div>
     );
   };
@@ -83,6 +102,31 @@ export function ClassicTemplate({ data, sectionOrder, emphasis, language }: Temp
               <div style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary, lineHeight: 1.5, marginTop: `${TOKENS.spacing.paragraphTop}px` }}>
                 {getText(edu.description, language)}
               </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderResearchExperience = () => {
+    if (!data.researchExperience || data.researchExperience.length === 0) return null;
+    return (
+      <div>
+        <SectionHead title={language === "zh" ? "科研经历" : "Research Experience"} />
+        {data.researchExperience.map((item) => (
+          <div key={item.id} style={{ marginBottom: `${TOKENS.spacing.itemBottom}px` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span style={{ fontWeight: 700, fontSize: `${TOKENS.fontSize.itemTitle}px` }}>{getText(item.project, language) || getText(item.institution, language)}<span style={{ fontWeight: 400 }}> · {getText(item.role, language)}</span></span>
+              <span style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textMuted, flexShrink: 0 }}>{item.period}</span>
+            </div>
+            {getText(item.description, language) && (
+              <div style={{ fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary, lineHeight: 1.5, marginTop: "2px" }}>{getText(item.description, language)}</div>
+            )}
+            {item.highlights && item.highlights.length > 0 && (
+              <ul style={{ margin: `${TOKENS.spacing.listTop}px 0 0 0`, paddingLeft: "14px", fontSize: `${TOKENS.fontSize.body}px`, color: C.textSecondary }}>
+                {item.highlights.map((h, i) => <li key={i} style={{ lineHeight: 1.5 }}>{getText(h, language)}</li>)}
+              </ul>
             )}
           </div>
         ))}
@@ -214,6 +258,7 @@ export function ClassicTemplate({ data, sectionOrder, emphasis, language }: Temp
   const sectionRenderers: Record<SectionKey, () => React.ReactNode> = {
     personalInfo: renderPersonalInfo,
     education: renderEducation,
+    researchExperience: renderResearchExperience,
     honors: renderHonors,
     experience: renderExperience,
     projects: renderProjects,

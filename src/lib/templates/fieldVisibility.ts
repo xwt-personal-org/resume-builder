@@ -3,6 +3,7 @@ import type { SectionKey, TemplateName } from "@/types";
 export const REQUIRED_VISIBLE_FIELDS = {
   personalInfo: ["name", "title", "gender", "birthDate", "politicalStatus", "phone", "email", "location", "website", "summary"],
   education: ["school", "degree", "major", "period", "gpa", "courses", "description"],
+  researchExperience: ["institution", "project", "role", "period", "description", "highlights"],
   honors: ["title", "level", "period", "description"],
   experience: ["company", "role", "period", "description", "highlights"],
   projects: ["name", "role", "period", "tech", "description", "link"],

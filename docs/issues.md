@@ -127,5 +127,34 @@
   - 用户认为字段"填了没用"。
 - **建议处理**：
   - 建立字段展示矩阵。
-  - 每个模板明确展示哪些字段。
-  - 提供模块/字段级显示控制或统一默认展示策略。
+   - 每个模板明确展示哪些字段。
+   - 提供模块/字段级显示控制或统一默认展示策略。
+
+### I-7-photo-slot-all-templates：四套模板证件照占位 [Fixed]
+- **日期**：2026-05-06
+- **类型**：视觉 / 布局
+- **现象**：四套模板缺少固定的个人证件照空间；Modern 模板使用圆形头像不符合证件照矩形规范。
+- **修复**：
+  - 在 `designTokens.ts` 新增 `photo` token（classic 76×100, modern 72×96, minimal 72×96, compact 60×80）。
+  - 四套模板新增 `PhotoSlot` 组件：有图渲染 `<img>`（`objectFit: cover`），无图显示虚线边框占位。
+  - Classic: 个人信息从 `textAlign:center` 改为 `display:flex` 左右布局。
+  - Modern: 圆形头像替换为矩形证件照位。
+  - Minimal/Compact: 个人信息头部右侧新增证件照 slot。
+- **验证**：`npm run build` 通过。
+
+### I-8-research-experience-section：新增科研经历可选模块 [Fixed]
+- **日期**：2026-05-06
+- **类型**：功能增强 / 数据模型
+- **现象**：缺乏"科研经历"简历模块，无法展示学术研究成果。
+- **修复**：
+  - 新增 `ResearchExperience` 接口（institution/project/role/period/description/highlights）。
+  - 扩展 `SectionKey`、`ResumeData`、`DEFAULT_RESUME_DATA`、`DEFAULT_SECTION_ORDER`、`SECTION_LABELS`。
+  - Store 新增 CRUD + `loadResumeData`/`persist.merge` 归一化（缺失字段补 `[]`）。
+  - JSON `mergeWithDefaults` 兼容旧数据导入。
+  - 新建 `ResearchExperienceForm.tsx` 编辑器表单。
+  - `SidebarEditor.tsx` 新增 `researchExperience` tab。
+  - `LayoutControls.tsx` 新增可控制显示/隐藏。
+  - 四套模板新增 `renderResearchExperience()`。
+  - i18n 补齐 `research.*` key（中英文）。
+  - demo 数据新增一条 PKU 计算机视觉实验室研究经历。
+- **验证**：`npm run build` 通过。

@@ -10,13 +10,15 @@ import { ExperienceForm } from "./ExperienceForm";
 import { ProjectForm } from "./ProjectForm";
 import { CampusActivityForm } from "./CampusActivityForm";
 import { SkillForm } from "./SkillForm";
+import { ResearchExperienceForm } from "./ResearchExperienceForm";
 import { LayoutControls } from "./LayoutControls";
 
-const SECTIONS: SectionKey[] = ["personalInfo", "education", "honors", "experience", "projects", "campusActivities", "skills"];
+const SECTIONS: SectionKey[] = ["personalInfo", "education", "researchExperience", "honors", "experience", "projects", "campusActivities", "skills"];
 
 const SECTION_ICONS: Record<SectionKey, string> = {
   personalInfo: "👤",
   education: "🎓",
+  researchExperience: "🔬",
   honors: "🏆",
   experience: "💼",
   projects: "🔧",
@@ -49,6 +51,8 @@ export function SidebarEditor() {
         return <CampusActivityForm />;
       case "skills":
         return <SkillForm />;
+      case "researchExperience":
+        return <ResearchExperienceForm />;
       default:
         return <PersonalInfoForm />;
     }

@@ -35,6 +35,7 @@ export const zh = {
     experience: '实习经历',
     projects: '项目经历',
     campusActivities: '校园经历',
+    researchExperience: '科研经历',
     skills: '技能特长',
   },
   personalInfo: {
@@ -52,6 +53,7 @@ export const zh = {
     gender: '性别',
     birthDate: '出生年月',
     politicalStatus: '政治面貌',
+    avatarUrl: '证件照 URL',
   },
   education: {
     schoolZh: '学校（中文）',
@@ -110,6 +112,20 @@ export const zh = {
     descriptionEn: '描述（英文）',
     highlights: '成果',
     addHighlight: '添加成果',
+  },
+  research: {
+    institutionZh: '机构/实验室（中文）',
+    institutionEn: '机构/实验室（英文）',
+    projectZh: '课题/项目（中文）',
+    projectEn: '课题/项目（英文）',
+    roleZh: '角色/职责（中文）',
+    roleEn: '角色/职责（英文）',
+    period: '参与时间',
+    descriptionZh: '研究概述（中文）',
+    descriptionEn: '研究概述（英文）',
+    highlights: '研究成果',
+    addHighlight: '添加成果',
+    empty: '暂无科研经历，点击上方按钮添加',
   },
   skills: {
     categoryZh: '分类（中文）',

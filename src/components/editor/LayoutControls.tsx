@@ -7,6 +7,7 @@ import t from "@/lib/i18n";
 
 const CONTROLLABLE_SECTIONS: SectionKey[] = [
   "education",
+  "researchExperience",
   "honors",
   "experience",
   "projects",

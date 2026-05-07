@@ -44,4 +44,10 @@ export const RESUME_TOKENS = {
   radius: {
     tag: 3,
   },
+  photo: {
+    classic: { width: 76, height: 100 },
+    modern: { width: 72, height: 96 },
+    minimal: { width: 72, height: 96 },
+    compact: { width: 60, height: 80 },
+  },
 } as const;

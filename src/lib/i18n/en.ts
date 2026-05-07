@@ -35,6 +35,7 @@ export const en: Record<string, Record<string, string>> = {
     experience: 'Internship',
     projects: 'Projects',
     campusActivities: 'Campus Activities',
+    researchExperience: 'Research Experience',
     skills: 'Skills',
   },
   personalInfo: {
@@ -52,6 +53,7 @@ export const en: Record<string, Record<string, string>> = {
     gender: 'Gender',
     birthDate: 'Date of Birth',
     politicalStatus: 'Political Status',
+    avatarUrl: 'Photo URL',
   },
   education: {
     schoolZh: 'School (Chinese)',
@@ -110,6 +112,20 @@ export const en: Record<string, Record<string, string>> = {
     descriptionEn: 'Description (English)',
     highlights: 'Achievements',
     addHighlight: 'Add Achievement',
+  },
+  research: {
+    institutionZh: 'Institution/Lab (Chinese)',
+    institutionEn: 'Institution/Lab (English)',
+    projectZh: 'Project/Topic (Chinese)',
+    projectEn: 'Project/Topic (English)',
+    roleZh: 'Role/Responsibility (Chinese)',
+    roleEn: 'Role/Responsibility (English)',
+    period: 'Period',
+    descriptionZh: 'Research Overview (Chinese)',
+    descriptionEn: 'Research Overview (English)',
+    highlights: 'Achievements',
+    addHighlight: 'Add Achievement',
+    empty: 'No research experience yet. Click above to add.',
   },
   skills: {
     categoryZh: 'Category (Chinese)',

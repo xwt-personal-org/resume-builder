@@ -2,21 +2,24 @@
 
 ## 元信息
 - 项目：resume-builder
-- 版本：v4
+- 版本：v5
 - 技术栈：Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + Zustand 5
-- 当前目标：在 v3 浏览器打印导出与本地后台关闭能力基线之上，将“项目经历”的描述能力改造成与“实习经历 / 校园经历”一致的双语分条亮点输入与渲染。
+- 当前目标：在 v4 项目经历分条亮点基线之上，完成两项结构性变更：
+  1. 四套模板都为个人证件照预留稳定空间，并使用现有 `PersonalInfo.avatarUrl` 渲染照片。
+  2. 新增可选模块「科研经历」，作为与教育背景、实习经历、项目经历、校园经历同级的简历 section，完整接入数据模型、编辑器、布局控制、模板渲染、JSON 兼容和验收。
 - 本轮策略：
-  - 不破坏现有 `description` 字段；继续作为项目概述/背景描述。
-  - 新增 `Project.highlights: BilingualText[]`，作为项目经历分条亮点。
-  - 所有旧 JSON / localStorage 数据缺失 `highlights` 时自动补 `[]`。
-  - 项目表单复用现有 `BilingualListInput`，不再新增重复组件。
-  - 四套模板统一渲染项目亮点 `<ul><li>`，样式跟实习经历/校园经历保持一致。
-  - 本轮不做“自动把历史 description 文本拆成 bullets”的 NLP/启发式迁移，避免误切分用户内容。
-- 总模块数：10
-- 预计步骤总数：61
-- 建议开发顺序：模块 8 Step 6 → 模块 10 Step 1 → 模块 10 Step 2 → 模块 10 Step 3 → 模块 10 Step 4 → 模块 10 Step 5
+  - 不新增图片上传链路；先复用 `PersonalInfo.avatarUrl`，在 `PersonalInfoForm` 补 URL 输入。
+  - 证件照位必须在有图和无图时都占据固定空间，避免简历版式跳动。
+  - 证件照统一采用证件照矩形比例，不再沿用 Modern 当前圆形头像样式。
+  - 「科研经历」是顶层可选 section，不挂在教育背景内部，不复用 `Education` 字段名。
+  - 「科研经历」字段采用当前已有模块模式：双语主字段 + period + description + highlights，保证中英文简历一致。
+  - 旧 JSON / localStorage 数据缺失 `researchExperience` 时统一归一化为 `[]`。
+  - 视觉测试遗留问题不阻断本轮功能，但新增变更必须至少通过 `npm run build` 与手动 QA。
+- 总模块数：11
+- 预计步骤总数：70
+- 建议开发顺序：模块 11 Step 1 → Step 2 → Step 3 → Step 4 → Step 5 → Step 6 → Step 7 → Step 8 → Step 9；模块 8 Step 6 与模块 9 Step 5 仍保留为后续独立修复
 - 创建日期：2026-05-01
-- 最后更新：2026-05-05
+- 最后更新：2026-05-06
 
 ### 变更记录
 | 版本 | 日期 | 变更摘要 |
@@ -25,21 +28,24 @@
 | v2 | 2026-05-02 | PDF 主链路改为浏览器打印；URL query payload 改为 sessionStorage；`@react-pdf` 降级；补打印导出测试 |
 | v3 | 2026-05-02 | 修复 Playwright webServer / popup print mock / print payload guard；新增开发环境关闭后台进程按钮 |
 | v4 | 2026-05-05 | 新增项目经历双语分条亮点字段、编辑表单、模板渲染、JSON 兼容与视觉验收 |
+| v5 | 2026-05-06 | 四套模板预留证件照位；新增同级可选模块「科研经历」并接入全链路 |
 
 ## Status
 > 任何 agent 读到此区块即可恢复完整上下文。
 
-- 当前阶段：模块 10：项目经历分条亮点改造 Step 5（模块 8 Step 6 与模块 9 Step 5 保留为待执行）
-- 整体进度：59 / 61 步骤完成
-- 状态：模块 10 Step 1-5 已执行；模块 8 Step 6 与模块 9 Step 5 保留待后续修复
+- 当前阶段：模块 11：证件照模板位与科研经历模块 Step 1
+- 整体进度：59 / 70 步骤完成
+- 状态：变更后待执行
 - 阻塞项：无
 - 当前决策：
   - `@react-pdf/renderer` 仍不作为主 PDF 导出链路。
-  - Playwright 视觉测试必须可自启动 dev server，`npm run test:visual` 必须成为可复现验收命令。
-  - 关闭网页标签页不等价于关闭后台进程；只保留显式“关闭后台”按钮。
+  - Playwright 视觉测试必须可自启动 dev server，`npm run test:visual` 长期目标必须可复现；但 v3 baseline diff / popup timeout 不阻断 v5 功能交付。
   - 关闭后台能力仅限本地开发环境，不能在生产环境暴露可远程杀进程的接口。
-  - 项目经历新增 `highlights` 字段，不删除、不复用 `description` 承载多条 bullet。
-  - 旧项目数据无 `highlights` 时统一归一化为 `[]`。
+  - 项目经历 `description` 与 `highlights` 继续并存，不自动拆分历史文本。
+  - 证件照使用 `PersonalInfo.avatarUrl`，本轮只补 URL 输入和模板渲染，不新增本地文件上传。
+  - 证件照位固定占位：无照片时显示浅色边框占位；有照片时 `<img>` 使用 `object-fit: cover`。
+  - 「科研经历」作为 `SectionKey` 顶层同级模块，默认可显示/隐藏；旧数据缺失时补 `[]`。
+  - 「科研经历」字段定义为 `id / institution / project / role / period / description / highlights`，不使用 `Education.school/degree/major` 字段名，避免语义污染。
 
 ### Last Iteration Summary
 - v2 已完成浏览器打印导出主链路：
@@ -55,15 +61,21 @@
 - v3 遗留执行端报告：
   - `npm run test:visual` 仍有模板截图 baseline diff。
   - `print export opens clean export page` 仍 timeout，需要修复 popup 测试稳定性。
-- v4 新需求：
-  - 实习经历的工作亮点已经分条填写。
-  - 项目经历的描述仍是一大段，需要调整为类似分条输入和分条渲染。
+  - `ShutdownButton.tsx` 仍有 React Hooks conditional calling lint 问题。
+- v4 已完成并经手动 QA：
+  - `Project.highlights: BilingualText[]` 已加入模型、store、JSON、表单和四套模板。
+  - 项目经历可分条填写双语亮点，预览和打印导出页可分条显示。
+- v5 新需求：
+  - 每个模板需要合适空间放置个人证件照。
+  - 增加可选模块「科研经历」，层级与教育背景等模块相同。
 
 ### Pending Decisions
 - 是否在后续版本彻底删除 `src/lib/export/pdf.tsx` 与 `@react-pdf/renderer` 依赖：本轮不决定。
 - 是否将 SVG 导出也改为浏览器/DOM 捕获路线：本轮不决定。
 - 是否增加“关闭标签页时自动尝试关闭后台”的实验功能：本轮不做。
-- 是否对历史 `projects[].description` 自动拆分为 `projects[].highlights`：本轮不做；由用户手动迁移内容，避免误拆。
+- 是否对历史 `projects[].description` 自动拆分为 `projects[].highlights`：本轮不做。
+- 是否为证件照新增本地文件上传 / base64 存储 / 图片裁剪：本轮不做，只使用 `avatarUrl` URL。
+- 是否将科研经历拆成「论文成果 / 专利 / 课题」多个子模块：本轮不做，先用通用科研经历条目承载。
 
 ---
 
@@ -110,7 +122,7 @@
 ### 概述
 - 职责：定义简历数据结构、模板名称、模块顺序、模块展示状态。
 - 前置依赖：模块 1
-- 当前状态：已实现；v4 将扩展 `Project` 字段。
+- 当前状态：已实现；v5 将扩展科研经历 section。
 
 ### Step 1：[DONE] 定义双语字段模型
 - **scope: auto**
@@ -119,7 +131,7 @@
 
 ### Step 2：[DONE] 定义个人信息模型
 - **scope: auto**
-- 操作：在 `src/types/resume.ts` 中定义 `interface PersonalInfo`。
+- 操作：在 `src/types/resume.ts` 中定义 `interface PersonalInfo`，保留 `avatarUrl: string`。
 - 验证：`npm run build`
 
 ### Step 3：[DONE] 定义简历模块模型
@@ -139,7 +151,7 @@
 ### 概述
 - 职责：集中管理简历数据、模板、语言、当前编辑区、模块顺序、模块展示状态。
 - 前置依赖：模块 2
-- 当前状态：已实现；v4 将补项目亮点默认值与兼容迁移。
+- 当前状态：已实现；v5 将补科研经历默认值、CRUD 与兼容迁移。
 
 ### Step 1：[DONE] 创建 Zustand store
 - **scope: auto**
@@ -173,16 +185,17 @@
 ### 概述
 - 职责：左侧分区表单，支持编辑简历各模块。
 - 前置依赖：模块 2、模块 3
-- 当前状态：已实现；v4 将修改项目经历表单。
+- 当前状态：已实现；v5 将新增科研经历表单入口，并补个人照片 URL 输入。
 
 ### Step 1：[DONE] 实现编辑器分区入口
 - **scope: auto**
 - 操作：在 `src/components/editor/SidebarEditor.tsx` 中实现 tab 切换与 section 渲染。
-- 验证：点击 7 个 tab 均显示对应表单。
+- 验证：点击所有 tab 均显示对应表单。
 
 ### Step 2：[DONE] 实现个人信息表单
 - **scope: auto**
 - 操作：在 `src/components/editor/PersonalInfoForm.tsx` 中实现个人信息输入。
+- 变更说明：v5 将通过模块 11 Step 2 补 `avatarUrl` 输入，不改本步骤历史状态。
 - 验证：修改字段后右侧预览实时更新。
 
 ### Step 3：[DONE] 实现教育经历表单
@@ -203,7 +216,7 @@
 ### Step 6：[DONE] 实现项目经历表单
 - **scope: auto**
 - 操作：在 `src/components/editor/ProjectForm.tsx` 中实现项目 CRUD、技术栈、描述、链接输入。
-- 变更说明：v4 将通过模块 10 Step 3 增加项目亮点分条输入。
+- 变更说明：v4 已通过模块 10 Step 3 增加项目亮点分条输入。
 - 验证：`npm run build`
 
 ### Step 7：[DONE] 实现校园经历表单
@@ -224,11 +237,12 @@
 ### Step 10：[DONE] 新增双语亮点逐项输入组件 BilingualListInput
 - **scope: auto**
 - 操作：维护 `src/components/ui/BilingualListInput.tsx`，用于 `BilingualText[]` 逐项编辑。
-- 验证：实习/校园经历亮点可逐条新增/删除。
+- 验证：实习/校园经历/项目经历亮点可逐条新增/删除。
 
 ### Step 11：[DONE] 新增模块展示控制组件 LayoutControls
 - **scope: auto**
 - 操作：维护 `src/components/editor/LayoutControls.tsx`，控制 section 显示/隐藏。
+- 变更说明：v5 将通过模块 11 Step 4 将 `researchExperience` 加入控制列表。
 - 验证：隐藏某模块后预览不显示该模块。
 
 ---
@@ -238,7 +252,7 @@
 ### 概述
 - 职责：渲染 A4 比例简历预览，支持 4 套模板、双语、模块顺序、模块隐藏。
 - 前置依赖：模块 2、模块 3
-- 当前状态：已实现；v4 将修改项目经历渲染。
+- 当前状态：已实现；v5 将修改个人信息头部证件照位，并新增科研经历渲染。
 
 ### Step 1：[DONE] 实现预览容器
 - **scope: auto**
@@ -248,37 +262,38 @@
 ### Step 2：[DONE] 实现 Classic 模板
 - **scope: auto**
 - 操作：维护 `src/components/templates/ClassicTemplate.tsx`。
-- 变更说明：v4 将通过模块 10 Step 4 增加项目亮点 `<ul>` 渲染。
+- 变更说明：v5 将通过模块 11 Step 5 增加矩形证件照位，通过模块 11 Step 6 增加科研经历渲染。
 - 验证：选择 Classic 模板，所有非空模块显示。
 
 ### Step 3：[DONE] 实现 Modern 模板
 - **scope: auto**
 - 操作：维护 `src/components/templates/ModernTemplate.tsx`。
-- 变更说明：v4 将通过模块 10 Step 4 增加项目亮点 `<ul>` 渲染。
+- 变更说明：v5 将通过模块 11 Step 5 将当前圆形头像改为矩形证件照位，通过模块 11 Step 6 增加科研经历渲染。
 - 验证：选择 Modern 模板，左侧/右侧布局正常。
 
 ### Step 4：[DONE] 实现 Minimal 模板
 - **scope: auto**
 - 操作：维护 `src/components/templates/MinimalTemplate.tsx`。
-- 变更说明：v4 将通过模块 10 Step 4 增加项目亮点 `<ul>` 渲染。
+- 变更说明：v5 将通过模块 11 Step 5 增加矩形证件照位，通过模块 11 Step 6 增加科研经历渲染。
 - 验证：`npm run build`
 
 ### Step 5：[DONE] 实现 Compact 模板
 - **scope: auto**
 - 操作：维护 `src/components/templates/CompactTemplate.tsx`。
-- 变更说明：v4 将通过模块 10 Step 4 增加项目亮点 `<ul>` 渲染。
+- 变更说明：v5 将通过模块 11 Step 5 增加矩形证件照位，通过模块 11 Step 6 增加科研经历渲染。
 - 验证：`npm run build`
 
 ### Step 6：[DONE] 新增模板设计 token
 - **scope: review**
 - 操作：维护 `src/lib/templates/designTokens.ts`。
+- 变更说明：v5 可在此增加 `photo` token，例如 `classic: { width: 76, height: 100 }`、`modern: { width: 72, height: 96 }`、`minimal: { width: 72, height: 96 }`、`compact: { width: 60, height: 80 }`。
 - 验证：四套 Web 模板视觉无明显回退。
 
 ### Step 7：[DONE] 建立字段展示矩阵并落地到模板
 - **scope: review**
 - 操作：维护模板字段展示策略，确保已采集字段在模板中有明确展示/隐藏决策。
-- 变更说明：v4 后字段矩阵应明确：`Project.description` 为项目概述；`Project.highlights` 为项目分条成果。
-- 验证：项目链接、描述、亮点等字段行为符合展示策略。
+- 变更说明：v5 后字段矩阵应明确：`PersonalInfo.avatarUrl` 为证件照；`researchExperience` 为可选同级模块。
+- 验证：项目链接、描述、亮点、证件照、科研经历等字段行为符合展示策略。
 
 ---
 
@@ -287,7 +302,7 @@
 ### 概述
 - 职责：支持 JSON 导入导出、SVG 导出、浏览器打印 PDF 导出、实验性 React PDF 导出。
 - 前置依赖：模块 2、模块 3、模块 5
-- 当前状态：浏览器打印主链路已完成；v4 将补 JSON 项目亮点兼容。
+- 当前状态：浏览器打印主链路已完成；v5 将补 JSON 科研经历兼容。
 
 ### Step 1：[DONE] 实现导出栏
 - **scope: auto**
@@ -297,7 +312,7 @@
 ### Step 2：[DONE] 实现 JSON 导入导出
 - **scope: auto**
 - 操作：在 `src/lib/export/json.ts` 中实现 `exportToJSON()`、`importFromJSON()`、`downloadJSON()`、`mergeWithDefaults()`。
-- 变更说明：v4 将通过模块 10 Step 2 为 `projects[].highlights` 增加默认兼容。
+- 变更说明：v5 将通过模块 11 Step 7 为 `researchExperience[]` 增加默认兼容。
 - 验证：导出 JSON 后重新导入，页面数据恢复且不崩溃。
 
 ### Step 3：[DONE] 实现 SVG 导出
@@ -308,7 +323,7 @@
 ### Step 4：[DONE] 实现 React PDF 导出
 - **scope: review**
 - 操作：在 `src/lib/export/pdf.tsx` 中实现 `createResumePDF()` 与四套 PDF 模板。
-- 变更说明：v2 中此功能降级为实验能力，不再作为主导出链路；v4 不处理 React PDF 项目亮点渲染，除非执行端发现当前 UI 仍暴露该入口。
+- 变更说明：v2 中此功能降级为实验能力，不再作为主导出链路；v5 不处理 React PDF 证件照/科研经历渲染，除非执行端发现当前 UI 仍暴露该入口。
 - 验证：本轮不以 React PDF 视觉一致性作为验收目标。
 
 ### Step 5：[DONE] 实现浏览器打印导出页
@@ -357,11 +372,12 @@
 ### 概述
 - 职责：提供编辑器、导出栏、运行控制文案的中英文词典。
 - 前置依赖：模块 1
-- 当前状态：基础已实现；v4 将新增项目亮点文案。
+- 当前状态：基础已实现；v5 将新增个人照片与科研经历文案。
 
 ### Step 1：[DONE] 实现词典文件
 - **scope: auto**
 - 操作：维护 `src/lib/i18n/zh.ts` 与 `src/lib/i18n/en.ts`。
+- 变更说明：v5 将通过模块 11 Step 8 补 `sections.researchExperience`、`personalInfo.avatarUrl`、`research.*` 等 key。
 - 验证：`npm run build`
 
 ### Step 2：[DONE] 实现翻译函数
@@ -381,8 +397,8 @@
 
 ### 概述
 - 职责：验证模板在不同语言/模板下的视觉一致性，以及导出主链路和本地运行控制入口可用性。
-- 前置依赖：模块 1、模块 5、模块 6、模块 9、模块 10
-- 当前状态：视觉 snapshot 已重建；v3 遗留 popup timeout 与 baseline diff；v4 需要补项目亮点验收。
+- 前置依赖：模块 1、模块 5、模块 6、模块 9、模块 10、模块 11
+- 当前状态：视觉 snapshot 已重建；v3 遗留 popup timeout 与 baseline diff；v5 需要补证件照与科研经历验收。
 
 ### Step 1：[DONE] 配置 Playwright 基础环境
 - **scope: auto**
@@ -403,7 +419,8 @@
 ### Step 4：[DONE] 新增模块隐藏验收测试
 - **scope: auto**
 - 操作：维护 `tests/visual.spec.ts` 中模块隐藏测试。
-- 验证：隐藏校园经历后预览不包含对应文本。
+- 变更说明：v5 后模块隐藏测试应覆盖 `researchExperience`。
+- 验证：隐藏校园经历/科研经历后预览不包含对应文本。
 
 ### Step 5：[DONE] 改造导出验收测试为浏览器打印主链路
 - **scope: review**
@@ -412,13 +429,15 @@
 
 ### Step 6：稳定 popup print mock 并补充本轮测试
 - **scope: review**
-- 变更说明：v3 新增；对应审计 M-1，并覆盖模块 9 的 UI 行为；v4 继续保留为待执行，因为 report 显示 popup timeout。
+- 变更说明：v3 新增；对应审计 M-1，并覆盖模块 9 的 UI 行为；v5 继续保留为待执行，因为 report 显示 popup timeout。
 - 操作：
   - 修改 `tests/visual.spec.ts`。
   - 将 popup 创建前的 print mock 放到 `page.context().addInitScript()`。
   - `print export opens clean export page` 不要依赖容易丢失的自定义事件时序；必须断言 `#resume-preview` 可见。
   - 保留 `export page with invalid payload shows error`。
   - 保留 `shutdown button calls local shutdown endpoint`，通过 `page.route("**/api/runtime/shutdown", ...)` mock，不允许真的杀 Playwright webServer。
+  - 新增科研经历显示/隐藏断言：创建或加载包含科研经历的 demo，断言预览有 `researchExperience` 文本，隐藏后消失。
+  - 新增证件照占位断言：四套模板在 `avatarUrl` 为空时仍存在固定尺寸 photo slot，在有 URL 时 `<img>` 可见。
 - 验证：
   - 不手动启动 dev server，直接运行 `npm run test:visual`。
   - `npm run build`。
@@ -430,7 +449,7 @@
 ### 概述
 - 职责：确认并显式控制本地开发后台进程关闭行为。提供网页端按钮，请求本地 Next.js API route 在响应后退出 Node 进程。
 - 前置依赖：模块 1、模块 7
-- 当前状态：v3 已主要实现；manual QA 通过。
+- 当前状态：v3 已主要实现；manual QA 通过；lint 问题保留为后续独立修复。
 - 非目标：
   - 不在生产环境暴露远程关闭服务接口。
   - 不实现关闭标签页自动关闭后台。
@@ -457,175 +476,324 @@
 - **scope: auto**
 - 操作：维护 `src/components/runtime/ShutdownButton.tsx`、`src/lib/runtime/shutdown.ts`，并在 `src/components/export/ExportBar.tsx` 挂载按钮。
 - 关键约束：
-  - 按钮只在开发环境显示或生产环境显示不可用态。
-  - 点击前必须 `window.confirm(t("runtime.shutdownConfirm"))`。
-  - 请求 `/api/runtime/shutdown` 使用 `POST` 与内部 header。
-- 验证：点击按钮后出现确认弹窗；确认后请求本地 API。
+  - 按钮只在开发环境显示或生产环境保持 disabled/hidden。
+  - 点击前必须有用户确认，避免误关服务。
+  - 请求失败时给出可理解错误反馈。
+- 验证：本地开发环境点击按钮后服务关闭；生产构建不暴露危险能力。
 
-### Step 4：[DONE] 手动 QA 并关闭 I-5 issue
+### Step 4：[DONE] 补齐关闭后台文案与手动 QA
 - **scope: auto**
-- 操作：修改 `docs/issues.md`，将 `I-5-local-dev-process-not-closed-by-browser` 标记为 `[Fixed]`，记录手动 QA 结果。
-- 验证：`docs/issues.md` 包含 fixed 记录。
+- 操作：维护 `src/lib/i18n/zh.ts`、`src/lib/i18n/en.ts` 中 runtime shutdown 相关 key；更新 `docs/report.md` manual QA 记录。
+- 验证：中英文切换时关闭后台按钮文案一致，manual QA 记录存在。
 
-### Step 5：补齐运行控制视觉/集成验收
-- **scope: review**
-- 操作：在 `tests/visual.spec.ts` 中保留并修复 `shutdown button calls local shutdown endpoint`。
-- 关键约束：测试必须 mock `/api/runtime/shutdown`，不能真的关闭 Playwright webServer。
-- 验证：`npm run test:visual` 通过。
+### Step 5：修复 ShutdownButton Hooks 条件调用 lint
+- **scope: auto**
+- 变更说明：v4 report 遗留；不属于 v5 功能主线，保留为后续独立修复。
+- 操作：
+  - 修改 `src/components/runtime/ShutdownButton.tsx`。
+  - 所有 React Hooks 必须在组件顶层无条件调用。
+  - 环境判断只能影响 render return 或按钮 disabled，不允许包裹 Hook 调用。
+- 验证：`npm run lint && npm run build`
 
 ---
 
 ## 模块 10：项目经历分条亮点改造
 
 ### 概述
-- 职责：让“项目经历”像“实习经历/校园经历”一样支持双语分条亮点输入、持久化、导入导出、预览和打印 PDF 渲染。
+- 职责：将项目经历从单段描述扩展为“项目概述 + 分条亮点”的双语输入与模板渲染。
 - 前置依赖：模块 2、模块 3、模块 4、模块 5、模块 6、模块 7、模块 8
-- 当前状态：v4 新增
-- 非目标：
-  - 不删除 `Project.description`。
-  - 不自动拆分历史 `description`。
-  - 不改变技术栈 `tech: string[]` 的编辑方式。
+- 当前状态：v4 已实现并经手动 QA 通过。
 
-### Step 1：扩展 Project 数据模型与示例数据
+### Step 1：[DONE] 扩展 Project 模型与 demo data
 - **scope: auto**
-- 变更说明：v4 新增。
+- 操作：
+  - 在 `src/types/resume.ts` 的 `Project` 中新增 `highlights: BilingualText[]`。
+  - 在 `src/lib/demoData.ts` 的每个 demo project 中补 2 条中英文亮点。
+- 验证：`npm run build`
+
+### Step 2：[DONE] 补 Store 与 JSON 兼容
+- **scope: auto**
+- 操作：
+  - 在 `src/store/useResumeStore.ts` 的 `addProject()`、`loadResumeData()`、`persist.merge` 三处补 `highlights: proj?.highlights ?? []` 或 `p.highlights || []`。
+  - 在 `src/lib/export/json.ts` 的 `mergeWithDefaults()` 中为 `projects[].highlights` 补默认 `[]`。
+- 验证：导入缺失 `projects[].highlights` 的旧 JSON 不崩溃，项目亮点默认空数组。
+
+### Step 3：[DONE] 修改 ProjectForm 分条输入
+- **scope: auto**
+- 操作：
+  - 修改 `src/components/editor/ProjectForm.tsx`，复用 `BilingualListInput` 编辑 `project.highlights`。
+  - 保留 `description.zh/en` 文本域作为项目概述。
+  - 修改 `src/lib/i18n/zh.ts`、`src/lib/i18n/en.ts`，新增 `projects.highlights` / `projects.addHighlight`。
+- 验证：新增项目经历后可逐条添加/删除中英文亮点。
+
+### Step 4：[DONE] 四套模板渲染项目亮点
+- **scope: auto**
+- 操作：
+  - 修改 `src/components/templates/ClassicTemplate.tsx`、`ModernTemplate.tsx`、`MinimalTemplate.tsx`、`CompactTemplate.tsx`。
+  - 在 `renderProjects()` 中保留 `description` 段落，并在其后渲染 `proj.highlights` 为 `<ul><li>`。
+  - 样式对齐 `renderExperience()` 与 `renderCampusActivities()` 的亮点列表。
+- 验证：四套模板在中英文下均显示项目亮点 bullet list。
+
+### Step 5：[DONE] 记录问题修复与手动验收
+- **scope: auto**
+- 操作：
+  - 修改 `docs/issues.md`，追加 `[Fixed] I-6-project-description-bullets — 2026-05-05`。
+  - 更新 `docs/report.md`，记录 v4 手动验收结论。
+- 验证：`docs/report.md` 为 `STATUS: ACCEPTED_MANUAL_QA`，且记录 build 通过、lint/visual 遗留不阻断。
+
+---
+
+## 模块 11：证件照模板位与科研经历模块
+
+### 概述
+- 职责：
+  - 为四套模板统一预留个人证件照空间，复用 `PersonalInfo.avatarUrl`。
+  - 新增与教育背景等同级的可选 section：科研经历。
+  - 完整接入类型、store、JSON、demo、编辑器、布局控制、四套模板、i18n 和验收。
+- 前置依赖：模块 2、模块 3、模块 4、模块 5、模块 6、模块 7、模块 8、模块 10
+- 当前状态：待执行
+- 非目标：
+  - 不实现图片上传、裁剪、压缩、本地文件读取。
+  - 不处理 React PDF 实验导出模板。
+  - 不将科研经历拆为论文 / 专利 / 课题多个子模块。
+  - 不修复 v3 遗留 visual baseline diff，除非阻断本轮新增测试。
+
+### Step 1：扩展核心类型与默认模块顺序
+- **scope: auto**
+- 变更说明：v5 新增；科研经历必须是顶层同级可选模块。
 - 操作：
   - 修改 `src/types/resume.ts`。
-  - 在 `interface Project` 中新增字段：
+  - 新增接口：
     ```ts
-    highlights: BilingualText[];
+    export interface ResearchExperience {
+      id: string;
+      institution: BilingualText;
+      project: BilingualText;
+      role: BilingualText;
+      period: string;
+      description: BilingualText;
+      highlights: BilingualText[];
+    }
     ```
-    推荐放在 `description` 后、`link` 前。
-  - 修改 `src/lib/demoData.ts`。
-  - 为每个 demo project 增加 `highlights` 数组，至少 2 条中英文示例：
+  - 将 `ResearchExperience` 加入 `ResumeData`：
     ```ts
-    highlights: [
-      { zh: "实现商品发布、搜索、即时聊天与交易管理核心流程", en: "Implemented core flows for item posting, search, real-time chat, and transaction management" },
-      { zh: "优化校招简历场景下的多模板预览与导出体验", en: "Optimized multi-template preview and export experience for campus recruiting resumes" },
-    ]
+    researchExperience: ResearchExperience[];
     ```
-  - 保留原 `description`，只把它作为项目概述，不迁移、不清空。
-- 验证：
-  - `npm run build`
-  - TypeScript 不再提示 `Project` 缺少 `highlights`。
+  - 将 `SectionKey` 扩展为包含 `'researchExperience'`。
+  - 在 `DEFAULT_RESUME_DATA` 中新增 `researchExperience: []`。
+  - 在 `DEFAULT_SECTION_ORDER` 中将 `'researchExperience'` 插入 `'education'` 后、`'honors'` 前：
+    `personalInfo → education → researchExperience → honors → experience → projects → campusActivities → skills`。
+  - 在 `SECTION_LABELS` 中新增：
+    `{ zh: '科研经历', en: 'Research Experience' }`。
+- 验证：`npm run build`
 
-### Step 2：补齐 store、JSON 导入导出与持久化兼容
+### Step 2：补个人信息表单的证件照 URL 输入
 - **scope: auto**
-- 变更说明：v4 新增。
+- 变更说明：当前 `PersonalInfo` 已有 `avatarUrl`，但 `PersonalInfoForm` 未暴露输入。
+- 操作：
+  - 修改 `src/components/editor/PersonalInfoForm.tsx`。
+  - 在 website 字段后、summary 字段前新增：
+    - label：`t("personalInfo.avatarUrl")`
+    - input `type="url"`
+    - value：`info.avatarUrl`
+    - onChange：`setPersonalInfo({ avatarUrl: e.target.value })`
+    - placeholder：`https://example.com/photo.jpg`
+  - 不新增图片上传控件。
+- 验证：
+  - 输入照片 URL 后右侧预览实时显示照片。
+  - 清空照片 URL 后四套模板仍保留证件照占位。
+
+### Step 3：新增科研经历 Store CRUD 与兼容归一化
+- **scope: auto**
+- 变更说明：科研经历必须具备与教育背景等数组模块同级的 add/update/remove 能力。
 - 操作：
   - 修改 `src/store/useResumeStore.ts`。
-  - 在 `addProject()` 默认对象中新增：
+  - import type 增加 `ResearchExperience`。
+  - 在 `ResumeState` 中新增：
     ```ts
-    highlights: proj?.highlights ?? []
+    addResearchExperience: (item?: Partial<ResumeData['researchExperience'][0]>) => void;
+    updateResearchExperience: (id: string, updates: Partial<ResumeData['researchExperience'][0]>) => void;
+    removeResearchExperience: (id: string) => void;
     ```
-  - 在 `loadResumeData()` 的 `projects` map 中新增：
-    ```ts
-    highlights: p.highlights || []
-    ```
-  - 在 Zustand `persist.merge` 的 `projects` map 中新增：
-    ```ts
-    highlights: p.highlights || []
-    ```
-  - 修改 `src/lib/export/json.ts`。
-  - 在 `mergeWithDefaults()` 的 `projects` map 中新增：
-    ```ts
-    highlights: proj.highlights || []
-    ```
-  - 不改变 `exportToJSON()`；新增字段会自然被序列化。
+  - 在 store 实现中新增 CRUD：
+    - `addResearchExperience()` 默认字段全部为空，`highlights: []`。
+    - `updateResearchExperience()` 按 id merge。
+    - `removeResearchExperience()` 按 id filter。
+  - 在 `loadResumeData()` 中新增 `researchExperience` 归一化：
+    - `id || uuidv4()`
+    - `institution/project/role/description || { zh: '', en: '' }`
+    - `period || ''`
+    - `highlights || []`
+  - 在 `persist.merge` 中同步新增同样归一化逻辑。
 - 验证：
   - `npm run build`
-  - 导入不含 `projects[].highlights` 的旧 JSON，页面不崩溃，项目亮点为空数组。
-  - 新增项目后导出 JSON，输出包含 `highlights` 字段。
+  - 浏览器 localStorage 中旧数据不含 `researchExperience` 时页面不崩溃。
+  - 新增科研经历后刷新页面数据保留。
 
-### Step 3：改造 ProjectForm 为双语分条亮点输入
+### Step 4：新增科研经历编辑器入口与表单
 - **scope: auto**
-- 变更说明：v4 新增。
+- 变更说明：科研经历表单应复用现有输入组件，不新增重复列表组件。
 - 操作：
-  - 修改 `src/components/editor/ProjectForm.tsx`。
-  - 新增 import：
-    ```ts
-    import { BilingualListInput } from "@/components/ui/BilingualListInput";
-    ```
-  - 在项目描述中文/英文 textarea 与链接输入之间插入：
-    ```tsx
-    <BilingualListInput
-      label={t("projects.highlights")}
-      value={proj.highlights}
-      onChange={(highlights) => updateProject(proj.id, { highlights })}
-      zhPlaceholder="例如：实现核心交易链路，支持 2000+ 注册用户"
-      enPlaceholder="e.g. Implemented the core transaction flow for 2,000+ registered users"
-      addButtonLabel={`+ ${t("projects.addHighlight")}`}
-      emptyText="暂无项目亮点，点击添加一项"
-    />
-    ```
-  - 修改 `src/lib/i18n/zh.ts`，在 `projects` 下新增：
-    ```ts
-    highlights: "项目亮点",
-    addHighlight: "添加亮点",
-    ```
-  - 修改 `src/lib/i18n/en.ts`，在 `projects` 下新增：
-    ```ts
-    highlights: "Project Highlights",
-    addHighlight: "Add highlight",
-    ```
-  - 保留 `descriptionZh` / `descriptionEn` 字段；不要改成数组字段。
+  - 新建 `src/components/editor/ResearchExperienceForm.tsx`。
+  - 表单结构参考 `EducationForm.tsx` 与 `ExperienceForm.tsx`：
+    - 顶部标题：`t("sections.researchExperience")`
+    - 新增按钮：`addResearchExperience()`
+    - 空状态：中文显示“暂无科研经历，点击上方按钮添加”；英文由 i18n key 控制或沿用现有空态风格。
+    - 双语字段：
+      - `institution.zh/en`：机构 / 实验室 / 学校
+      - `project.zh/en`：课题 / 研究项目
+      - `role.zh/en`：角色 / 职责
+      - `description.zh/en`：研究概述
+    - 普通字段：
+      - `period`
+    - 亮点列表：
+      - 复用 `BilingualListInput` 编辑 `highlights`
+  - 修改 `src/components/editor/SidebarEditor.tsx`：
+    - import `ResearchExperienceForm`
+    - `SECTIONS` 插入 `"researchExperience"`
+    - `SECTION_ICONS.researchExperience = "🔬"`
+    - `renderSection()` 增加 case `"researchExperience"`
+  - 修改 `src/components/editor/LayoutControls.tsx`：
+    - `CONTROLLABLE_SECTIONS` 插入 `"researchExperience"`，位置在 education 后、honors 前。
 - 验证：
-  - `npm run lint`
-  - `npm run build`
-  - 打开“项目经历”，可以逐条新增/删除中文与英文亮点。
-  - 切换语言后表单 label 使用对应语言。
+  - 点击科研经历 tab 能显示表单。
+  - 新增 / 修改 / 删除科研经历后右侧预览实时更新。
+  - 布局控制中可隐藏/显示科研经历。
 
-### Step 4：四套模板渲染项目亮点 bullet list
+### Step 5：统一四套模板证件照占位
 - **scope: review**
-- 变更说明：v4 新增。
+- 变更说明：这是本轮视觉核心变更，必须保证四套模板都有稳定照片空间。
 - 操作：
-  - 修改 `src/components/templates/ClassicTemplate.tsx`。
-  - 修改 `src/components/templates/ModernTemplate.tsx`。
-  - 修改 `src/components/templates/MinimalTemplate.tsx`。
-  - 修改 `src/components/templates/CompactTemplate.tsx`。
-  - 在每个模板的 `renderProjects()` 中，保留现有顺序：标题/角色/时间 → 链接 → 技术栈 → 描述。
-  - 在项目描述后新增项目亮点列表：
+  - 优先在 `src/lib/templates/designTokens.ts` 新增证件照尺寸 token：
+    ```ts
+    photo: {
+      classic: { width: 76, height: 100 },
+      modern: { width: 72, height: 96 },
+      minimal: { width: 72, height: 96 },
+      compact: { width: 60, height: 80 },
+    }
+    ```
+    如 token 文件结构不适合嵌套，也可在模板文件内定义局部常量，但四套尺寸必须集中、可读。
+  - 修改 `src/components/templates/ClassicTemplate.tsx`：
+    - `renderPersonalInfo()` 顶层由 center header 改为 flex header。
+    - 左侧信息区保持姓名、title、contact、summary；右侧固定证件照 slot。
+    - slot 无图时显示边框和 `language === "zh" ? "证件照" : "Photo"`。
+  - 修改 `src/components/templates/ModernTemplate.tsx`：
+    - 将当前圆形头像替换为矩形证件照 slot。
+    - 保留 sidebar 位置，但不要再用姓名首字母圆形占位。
+  - 修改 `src/components/templates/MinimalTemplate.tsx`：
+    - 在个人信息头部右侧新增固定证件照 slot。
+    - 不破坏 Minimal 的留白和线条风格。
+  - 修改 `src/components/templates/CompactTemplate.tsx`：
+    - 在紧凑头部右侧新增较小固定证件照 slot。
+    - 若内容拥挤，优先压缩 contact 行距，不允许压缩照片到不可识别。
+  - 每套模板新增局部 helper：
     ```tsx
-    {proj.highlights && proj.highlights.length > 0 && (
-      <ul style={{ margin: "2px 0 0 0", paddingLeft: "14px", fontSize: "10.5px", color: C.textSecondary }}>
-        {proj.highlights
-          .map((h, i) => ({ text: getText(h), i }))
-          .filter(({ text }) => text.trim())
-          .map(({ text, i }) => <li key={i} style={{ lineHeight: 1.5 }}>{text}</li>)}
-      </ul>
-    )}
+    function PhotoSlot({ src, language, width, height }: { src: string; language: "zh" | "en"; width: number; height: number }) { ... }
     ```
-  - 具体字号、颜色、lineHeight 按各模板现有 `experience.highlights` 或 `campusActivities.highlights` 的样式复制，不新增全局 CSS。
-  - 空数组、空字符串亮点不渲染 `<ul>` 或空 `<li>`。
+    或抽取到 `src/components/templates/PhotoSlot.tsx`；若抽取组件，四套模板统一 import。
+  - `<img>` 必须使用 `objectFit: "cover"`，外层必须 `overflow: "hidden"`。
 - 验证：
   - `npm run build`
-  - 四套模板下，项目经历亮点显示为 bullet list。
-  - 点击“一键导出 PDF”打开 `/export` 后，打印页中项目亮点仍是 bullet list。
+  - `avatarUrl` 为空时四套模板都有固定照片占位。
+  - `avatarUrl` 有效时四套模板显示照片。
+  - 证件照位不会遮挡姓名、联系方式、summary。
 
-### Step 5：补充测试、快照与文档记录
+### Step 6：四套模板新增科研经历渲染
 - **scope: review**
-- 变更说明：v4 新增。
+- 变更说明：科研经历必须遵守 `sectionOrder` 与 `emphasis.hidden`。
 - 操作：
-  - 修改 `tests/visual.spec.ts`。
-  - 增加或更新一条项目亮点验收：
-    - 加载 demo data。
-    - 切到“项目经历”。
-    - 添加一条中文/英文项目亮点。
-    - 断言右侧预览出现该亮点，并且属于项目经历区块。
-  - 不要求测试 DOM tagName 必须是 `li`，但至少断言文本显示在预览和 `/export` 打印页中。
-  - 若模板快照因项目亮点新增发生预期变化，执行：
-    ```bash
-    npm run test:visual:update
-    ```
-    并确认 diff 仅来自项目经历新增 bullet list，不包含无关布局漂移。
-  - 修改 `docs/issues.md`，追加：
-    ```md
-    [Fixed] I-6-project-description-bullets — 2026-05-05
-    项目经历已新增 `highlights: BilingualText[]`，支持像实习经历一样分条填写和导出渲染。
-    ```
-  - 修改 `docs/report.md`，在本轮完成后记录 v4 执行结果、测试命令与剩余问题。
+  - 修改 `src/components/templates/ClassicTemplate.tsx`、`ModernTemplate.tsx`、`MinimalTemplate.tsx`、`CompactTemplate.tsx`。
+  - 每套模板新增 `renderResearchExperience()`。
+  - 渲染规则：
+    - `data.researchExperience.length === 0` 时返回 null。
+    - section 标题：中文“科研经历”，英文“Research Experience”。
+    - 每条记录标题行：
+      - 主标题：`getText(item.project, language)`；为空时 fallback 到 `getText(item.institution, language)`。
+      - 副信息：`getText(item.institution, language)`、`getText(item.role, language)`。
+      - 时间：`item.period` 右对齐或模板原有时间位置。
+    - `description` 作为段落显示。
+    - `highlights` 使用 `<ul><li>` 分条显示，样式对齐当前实习/校园/项目亮点。
+  - `sectionRenderers` / `mainRenderers` / `SECTION_LABELS` 等模板内局部映射必须加入 `researchExperience`。
+  - `ModernTemplate` 的 `mainSections` 必须加入 `"researchExperience"`；科研经历不进入 sidebar。
 - 验证：
-  - `npm run lint`
+  - 四套模板中科研经历出现在教育背景之后、荣誉奖项之前。
+  - 拖动/调整 sectionOrder 后科研经历位置按顺序渲染。
+  - 在 LayoutControls 隐藏科研经历后四套模板均不渲染该 section。
+
+### Step 7：补 JSON 导入导出与 demo data
+- **scope: auto**
+- 变更说明：旧数据兼容是必须项，否则新增 section 会破坏导入链路。
+- 操作：
+  - 修改 `src/lib/export/json.ts`：
+    - `mergeWithDefaults()` 返回对象中新增 `researchExperience`。
+    - 对每条 item 执行与 store 一致的字段默认值归一化。
+  - 修改 `src/lib/demoData.ts`：
+    - 在 `DEMO_RESUME_DATA` 中新增 `researchExperience` 示例 1 条。
+    - 示例必须含中英文 `institution/project/role/description` 与至少 2 条 `highlights`。
+    - 示例内容避免太长，防止 A4 溢出。
+- 验证：
+  - 导出 JSON 后包含 `researchExperience`。
+  - 导入缺失 `researchExperience` 的旧 JSON 不崩溃且默认为 `[]`。
+  - 点击示例数据后四套模板能看到科研经历。
+
+### Step 8：补 i18n 文案
+- **scope: auto**
+- 变更说明：新增表单字段不允许硬编码英文 key。
+- 操作：
+  - 修改 `src/lib/i18n/zh.ts` 与 `src/lib/i18n/en.ts`。
+  - 至少新增：
+    - `sections.researchExperience`
+    - `personalInfo.avatarUrl`
+    - `research.institutionZh`
+    - `research.institutionEn`
+    - `research.projectZh`
+    - `research.projectEn`
+    - `research.roleZh`
+    - `research.roleEn`
+    - `research.period`
+    - `research.descriptionZh`
+    - `research.descriptionEn`
+    - `research.highlights`
+    - `research.addHighlight`
+    - `research.empty`
+  - 若现有 i18n 结构不支持嵌套新增，则按当前文件风格添加等价 key，但表单必须通过 `t()` 读取。
+- 验证：
   - `npm run build`
-  - `npm run test:visual`
-  - 手动 QA：项目经历新增 2 条中文/英文亮点后，Web 预览与 `/export` 打印页均分条显示；旧 JSON 导入不崩溃。
+  - 切换中英文后，个人照片 URL、科研经历 tab、字段 label、空状态、亮点输入文案语言一致。
+
+### Step 9：验收、记录与报告更新
+- **scope: review**
+- 变更说明：本轮至少手动 QA 必须覆盖四套模板照片位与科研经历全链路。
+- 操作：
+  - 修改 `docs/issues.md`：
+    - 追加 `[Fixed] I-7-photo-slot-all-templates — 2026-05-06`
+    - 追加 `[Fixed] I-8-research-experience-section — 2026-05-06`
+  - 修改 `docs/report.md`：
+    - `STATUS` 可根据实际结果设为 `ACCEPTED_MANUAL_QA` 或 `NEEDS_ESCALATION`。
+    - `Last Execution` 写明来源 `dispatch:patch (v5)`。
+    - `Completed` 列出模块 11 Step 1-9 的完成情况。
+    - `Verification Results` 至少记录：
+      - `npm run build`
+      - 手动 QA：四套模板照片占位 / 照片 URL 渲染 / 科研经历新增修改删除 / 布局隐藏 / JSON 旧数据导入。
+    - 旧 lint / visual 遗留若未修，继续列在 `Discovered Issues`，不得写成已修复。
+  - 可选：若执行端顺手补充自动化测试，更新 `tests/visual.spec.ts` 并在报告中记录；否则不得声称自动化已覆盖。
+- 验证：
+  - `npm run build`
+  - 手动 QA 完整通过。
+  - `docs/report.md` 与实际验证结果一致。
+
+---
+
+## v5 变更对照
+
+| 变更点 | 受影响文件 | 处理方式 | scope |
+|---|---|---|---|
+| 证件照 URL 输入 | `src/components/editor/PersonalInfoForm.tsx`, `src/lib/i18n/zh.ts`, `src/lib/i18n/en.ts` | 复用 `PersonalInfo.avatarUrl`，补表单输入 | auto |
+| 四套模板证件照位 | `ClassicTemplate.tsx`, `ModernTemplate.tsx`, `MinimalTemplate.tsx`, `CompactTemplate.tsx`, 可选 `PhotoSlot.tsx`, `designTokens.ts` | 固定矩形占位，有图渲染，无图保留 slot | review |
+| 科研经历数据模型 | `src/types/resume.ts` | 新增 `ResearchExperience`、`ResumeData.researchExperience`、`SectionKey`、默认顺序、标签 | auto |
+| 科研经历状态管理 | `src/store/useResumeStore.ts` | 新增 CRUD、load、persist.merge 兼容 | auto |
+| 科研经历编辑器 | `ResearchExperienceForm.tsx`, `SidebarEditor.tsx`, `LayoutControls.tsx` | 新增 tab / 表单 / 可隐藏控制 | auto |
+| 科研经历模板渲染 | 四套模板 | 新增 `renderResearchExperience()`，遵守 `sectionOrder` 与 `emphasis` | review |
+| JSON / demo 兼容 | `src/lib/export/json.ts`, `src/lib/demoData.ts` | 旧数据补 `[]`，demo 增加示例 | auto |
+| 验收记录 | `docs/issues.md`, `docs/report.md` | 记录 v5 fixed 与验证结果 | review |
