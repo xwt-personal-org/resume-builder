@@ -41,6 +41,7 @@ export const RESUME_TOKENS = {
     meta: 10.5,
     tag: 10,
   },
+  fontFamily: "system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif",
   radius: {
     tag: 3,
   },
@@ -50,4 +51,10 @@ export const RESUME_TOKENS = {
     minimal: { width: 80, height: 106 },
     compact: { width: 66, height: 88 },
   },
+} as const;
+
+export const RESUME_TEMPLATE_ROOT_STYLE = {
+  width: "100%",
+  minHeight: `${RESUME_TOKENS.page.minHeightPx}px`,
+  boxSizing: "border-box",
 } as const;

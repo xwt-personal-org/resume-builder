@@ -2,9 +2,9 @@ name: Visual Regression Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ master, main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ master, main ]
   workflow_dispatch:
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
       - name: Start application
         run: npm start &
         env:
-          TEST_URL: http://localhost:3001
+          APP_URL: http://localhost:3001
           NODE_ENV: production
           PORT: 3001
       
@@ -61,7 +61,7 @@ jobs:
         run: npm run test:visual
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-          TEST_URL: http://localhost:3001
+          APP_URL: http://localhost:3001
       
       - name: Upload test results
         if: always()

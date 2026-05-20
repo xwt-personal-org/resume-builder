@@ -60,7 +60,7 @@ function mergeWithDefaults(data: Partial<ResumeData>): ResumeData {
       category: cat.category || { zh: "", en: "" },
       items: cat.items || [],
     })) : [],
-    researchExperience: Array.isArray(data.researchExperience) ? data.researchExperience.map((r: any) => ({
+    researchExperience: Array.isArray(data.researchExperience) ? data.researchExperience.map((r) => ({
       id: r.id || "",
       institution: r.institution || { zh: "", en: "" },
       project: r.project || { zh: "", en: "" },

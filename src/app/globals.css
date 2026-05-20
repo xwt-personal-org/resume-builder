@@ -195,7 +195,10 @@ select {
 
   html, body {
     width: 210mm;
+    height: auto;
     min-height: 297mm;
+    margin: 0 !important;
+    overflow: visible !important;
     background: white !important;
   }
 
@@ -208,12 +211,29 @@ select {
     margin: 0 !important;
     padding: 0 !important;
     display: block !important;
+    background: white !important;
   }
 
   #resume-preview.resume-print-area {
     width: 210mm !important;
+    height: auto !important;
     min-height: 297mm !important;
     box-shadow: none !important;
     margin: 0 auto !important;
+    background: white !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #resume-preview.resume-print-area,
+  #resume-preview.resume-print-area * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #resume-preview.resume-print-area > * {
+    width: 100% !important;
+    min-height: inherit !important;
   }
 }

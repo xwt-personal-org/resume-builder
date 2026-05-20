@@ -40,8 +40,11 @@ export function ExportBar() {
     sessionStorage.setItem("resume-export-payload", JSON.stringify(payload));
     const printWindow = window.open("/export", "_blank");
     if (!printWindow) {
+      sessionStorage.removeItem("resume-export-payload");
       showFeedback(t("export.popupBlocked"));
+      return;
     }
+    sessionStorage.removeItem("resume-export-payload");
   };
 
   const handleExportSVG = () => {
@@ -117,10 +120,15 @@ export function ExportBar() {
       <div className="flex-1" />
 
       <button
-        onClick={() => store.loadDemoData()}
+        onClick={() => {
+          if (confirm("加载示例数据将覆盖当前编辑的简历内容，确定要继续吗？")) {
+            store.loadDemoData();
+          }
+        }}
+        title="加载虚构的示例简历以供预览，将会覆盖当前内容"
         className="btn-secondary text-xs px-3 py-1.5 text-[var(--color-primary)] border-[var(--color-primary-light)] hover:bg-blue-50"
       >
-        示例数据
+        加载示例
       </button>
       <button
         onClick={() => {

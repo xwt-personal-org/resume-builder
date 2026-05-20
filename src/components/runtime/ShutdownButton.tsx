@@ -6,10 +6,7 @@ import { requestRuntimeShutdown } from "@/lib/runtime/shutdown";
 
 export function ShutdownButton() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "done" | "error">("idle");
-
-  if (process.env.NODE_ENV !== "development") {
-    return null;
-  }
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   const handleClick = async () => {
     if (!confirm(t("runtime.shutdownConfirm"))) return;
@@ -40,6 +37,10 @@ export function ShutdownButton() {
     if (status !== "done") return;
     window.close();
   }, [status]);
+
+  if (!isDevelopment) {
+    return null;
+  }
 
   if (status === "success") {
     return <span className="text-xs text-[var(--color-primary)]">{t("runtime.shutdownStarting")}</span>;

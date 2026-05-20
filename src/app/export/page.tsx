@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useResumeStore } from "@/store/useResumeStore";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PreviewPanel } from "@/components/preview/PreviewPanel";
 import type { ResumeData, TemplateName, SectionKey, SectionEmphasis } from "@/types";
 import { ALL_SECTION_KEYS, normalizeSectionOrder } from "@/lib/resume/sectionOrder";
@@ -73,39 +72,101 @@ function readPrintPayload(): PrintPayload | null {
   }
 }
 
+function waitForNextFrame(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+}
+
+async function waitForPreviewElement(): Promise<HTMLElement> {
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    const preview = document.getElementById("resume-preview");
+    const rect = preview?.getBoundingClientRect();
+    if (preview && rect && rect.width > 0 && rect.height > 0) {
+      return preview;
+    }
+    await waitForNextFrame();
+  }
+  throw new Error("Timed out waiting for #resume-preview to become measurable.");
+}
+
+async function waitForFontsReady(): Promise<void> {
+  const fonts = "fonts" in document ? document.fonts : undefined;
+  await fonts?.ready;
+}
+
+function waitForImageReady(image: HTMLImageElement): Promise<void> {
+  if (image.complete && image.naturalWidth > 0) {
+    return Promise.resolve();
+  }
+  if (typeof image.decode === "function") {
+    return image.decode().catch(() => {
+      if (image.complete) return;
+      return new Promise<void>((resolve) => {
+        image.addEventListener("load", () => resolve(), { once: true });
+        image.addEventListener("error", () => resolve(), { once: true });
+      });
+    });
+  }
+  return new Promise((resolve) => {
+    image.addEventListener("load", () => resolve(), { once: true });
+    image.addEventListener("error", () => resolve(), { once: true });
+  });
+}
+
+async function waitForPreviewImages(preview: HTMLElement): Promise<void> {
+  const images = Array.from(preview.querySelectorAll("img"));
+  await Promise.all(images.map(waitForImageReady));
+}
+
+async function prepareAndPrint(): Promise<void> {
+  const preview = await waitForPreviewElement();
+  await waitForFontsReady();
+  await waitForPreviewImages(preview);
+  await waitForNextFrame();
+  await waitForNextFrame();
+  preview.dataset.exportReady = "true";
+  window.print();
+}
+
 export default function ExportPage() {
-  const [ready, setReady] = useState(false);
+  const [payload, setPayload] = useState<PrintPayload | null>(null);
   const [noPayload, setNoPayload] = useState(false);
-  const { loadResumeData, setTemplate, setSectionOrder, setEmphasis, setActiveLanguage } = useResumeStore();
+  const [renderedTick, setRenderedTick] = useState(0);
+  const [printError, setPrintError] = useState<string | null>(null);
+  const printStartedRef = useRef(false);
 
   useEffect(() => {
     document.title = "Resume Print Export";
 
-    const payload = readPrintPayload();
-    if (!payload) {
+    const nextPayload = readPrintPayload();
+    if (!nextPayload) {
       requestAnimationFrame(() => setNoPayload(true));
       return;
     }
 
-    loadResumeData(payload.data);
-    setTemplate(payload.template);
-    setSectionOrder(payload.sectionOrder);
-    setEmphasis(payload.emphasis);
-    setActiveLanguage(payload.language);
-
-    requestAnimationFrame(() => {
-      setReady(true);
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    });
+    requestAnimationFrame(() => setPayload(nextPayload));
 
     const onAfterPrint = () => {
       sessionStorage.removeItem("resume-export-payload");
     };
     window.addEventListener("afterprint", onAfterPrint);
     return () => window.removeEventListener("afterprint", onAfterPrint);
-  }, [loadResumeData, setTemplate, setSectionOrder, setEmphasis, setActiveLanguage]);
+  }, []);
+
+  const handleRendered = useCallback(() => {
+    setRenderedTick((tick) => tick + 1);
+  }, []);
+
+  useEffect(() => {
+    if (!payload || renderedTick === 0 || printStartedRef.current) return;
+
+    printStartedRef.current = true;
+    prepareAndPrint().catch((error: unknown) => {
+      printStartedRef.current = false;
+      setPrintError(error instanceof Error ? error.message : "Print preparation failed.");
+    });
+  }, [payload, renderedTick]);
 
   if (noPayload) {
     return (
@@ -115,7 +176,7 @@ export default function ExportPage() {
     );
   }
 
-  if (!ready) {
+  if (!payload) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontFamily: "system-ui, sans-serif", color: "#666" }}>
         Loading...
@@ -125,7 +186,22 @@ export default function ExportPage() {
 
   return (
     <div className="print-container" style={{ display: "flex", justifyContent: "center", padding: "0" }}>
-      <PreviewPanel />
+      {printError && (
+        <div className="no-print" role="alert" style={{ position: "fixed", top: 12, left: 12, right: 12, zIndex: 1, padding: "8px 12px", fontFamily: "system-ui, sans-serif", fontSize: "12px", color: "#991b1b", background: "#fee2e2", border: "1px solid #fecaca", borderRadius: "6px" }}>
+          {printError}
+        </div>
+      )}
+      <PreviewPanel
+        exportMode
+        onRendered={handleRendered}
+        snapshot={{
+          data: payload.data,
+          template: payload.template,
+          sectionOrder: payload.sectionOrder,
+          emphasis: payload.emphasis,
+          language: payload.language,
+        }}
+      />
     </div>
   );
 }

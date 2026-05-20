@@ -1,37 +1,53 @@
 {
   "schema_version": "wkstruc-ledger/v9",
-  "task_id": "iter-pdf-export-visual-parity",
+  "task_id": "iter-web-production-release",
   "state": "NEEDS_REVIEW",
   "progress": {
-    "done": 7,
-    "total": 7,
-    "label": "7 / 7 steps"
+    "done": 5,
+    "total": 5,
+    "label": "5 / 5 steps"
   },
   "last_run": {
-    "at": "2026-05-10T22:27:39.8729548-07:00",
-    "agent": "codex",
-    "summary": "PDF export visual parity patch completed: six parallel audits, deterministic export readiness, shared PreviewPanel render path, per-template parity fixes, print CSS normalization, visual baselines refreshed, and 8-combination export parity regression added."
+    "at": "2026-05-19T00:00:00.000Z",
+    "agent": "gemini",
+    "summary": "Completed Stage 1 web production prep: standardized ledger, aligned CI (APP_URL and branches), verified Node deployment mode due to shutdown API route, added SEO metadata and a local-only privacy disclaimer, and authored DEPLOYMENT.md."
   },
   "validation": {
     "status": "PASS",
     "commands": [
       "npm run lint",
       "npm run build",
-      "npm run test:visual:update",
       "npm run test:visual",
       "npm run test:export-parity"
     ],
-    "summary": "Final sequential validation passed. lint and build passed. visual snapshots were intentionally updated for shared frame/font/template changes, then npm run test:visual passed with 11/11. npm run test:export-parity passed with 8/8 template-language combinations, including main preview, export screen preview, mocked print trigger after data-export-ready, and print media checks. An earlier parallel visual run hit an EADDRINUSE webServer collision and was rerun sequentially. The in-app Browser plugin local smoke attempt timed out, so the completed browser-grade acceptance evidence is the Playwright Chromium matrix."
+    "summary": "All validation commands passed. Next.js standard build verified. Playwright visual tests passed on chromium. Visual updates applied for the new privacy footer text."
   },
-  "open_items": [],
-  "consumed_inbox": [
-    ".ai/inbox/plan-patch-pdf-export-visual-parity.md"
+  "open_items": [
+    "Final domain name for public release",
+    "Hosting provider selection",
+    "Global vs China mainland deployment routing",
+    "Whether ICP or Chinese cloud hosting is required",
+    "Whether analytics (e.g., Google Analytics / Vercel Analytics) are allowed",
+    "Whether product remains strictly local-only for this release (currently assumed yes)"
   ],
-  "checkpoint_id": "checkpoint-pdf-export-visual-parity-20260510",
-  "last_review_report": "ref/pdf-export-parity-audit-20260510.md",
+  "consumed_inbox": [
+    ".ai/inbox/plan.md"
+  ],
+  "checkpoint_id": "checkpoint-web-production-release",
+  "last_review_report": "",
   "previous_task": {
-    "task_id": "resume-builder-v6",
+    "task_id": "iter-pdf-export-visual-parity",
     "state": "NEEDS_REVIEW",
-    "validation_status": "PARTIAL"
+    "validation": {
+      "status": "PASS",
+      "commands": [
+        "npm run lint",
+        "npm run build",
+        "npm run test:visual:update",
+        "npm run test:visual",
+        "npm run test:export-parity"
+      ],
+      "summary": "Final sequential validation passed. lint and build passed. visual snapshots were intentionally updated for shared frame/font/template changes, then npm run test:visual passed with 11/11. npm run test:export-parity passed with 8/8 template-language combinations, including main preview, export screen preview, mocked print trigger after data-export-ready, and print media checks. An earlier parallel visual run hit an EADDRINUSE webServer collision and was rerun sequentially. The in-app Browser plugin local smoke attempt timed out, so the completed browser-grade acceptance evidence is the Playwright Chromium matrix."
+    }
   }
 }

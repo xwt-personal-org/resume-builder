@@ -61,18 +61,21 @@ test.describe("resume visual snapshots", () => {
   }
 });
 
-test("print export opens clean export page", async ({ page }) => {
+test("print export opens clean export page", async ({ page, context }) => {
   await resetApp(page);
 
   // Mock window.print to prevent actual print dialog
-  await page.addInitScript(() => {
-    window.print = () => window.dispatchEvent(new Event("resume-print-called"));
+  await context.addInitScript(() => {
+    window.print = () => {
+      (window as unknown as { __resumePrintCalled?: boolean }).__resumePrintCalled = true;
+      window.dispatchEvent(new Event("resume-print-called"));
+    };
   });
 
   // Click main PDF export button
   const [newPage] = await Promise.all([
     page.waitForEvent("popup"),
-    page.getByRole("button", { name: /导出PDF|Export PDF/i }).click(),
+    page.getByRole("button", { name: /一键导出 PDF|Export PDF/i }).click(),
   ]);
 
   // Wait for page to load
@@ -84,6 +87,10 @@ test("print export opens clean export page", async ({ page }) => {
 
   // Assert resume preview is visible
   await expect(newPage.locator("#resume-preview")).toBeVisible();
+  await expect(newPage.locator("#resume-preview")).toHaveAttribute("data-export-ready", "true");
+  await expect
+    .poll(() => newPage.evaluate(() => (window as unknown as { __resumePrintCalled?: boolean }).__resumePrintCalled === true))
+    .toBe(true);
 });
 
 test("export page without payload shows error", async ({ page }) => {

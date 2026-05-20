@@ -1,44 +1,68 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useMemo } from "react";
 import { useResumeStore } from "@/store/useResumeStore";
 import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
+import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import { ClassicTemplate } from "@/components/templates/ClassicTemplate";
+import { ModernTemplate } from "@/components/templates/ModernTemplate";
+import { MinimalTemplate } from "@/components/templates/MinimalTemplate";
+import { CompactTemplate } from "@/components/templates/CompactTemplate";
+import type { ResumeData, SectionEmphasis, SectionKey, TemplateName } from "@/types";
 
-const ClassicTemplate = dynamic(
-  () => import("@/components/templates/ClassicTemplate").then((m) => ({ default: m.ClassicTemplate })),
-  { ssr: false }
-);
-const ModernTemplate = dynamic(
-  () => import("@/components/templates/ModernTemplate").then((m) => ({ default: m.ModernTemplate })),
-  { ssr: false }
-);
-const MinimalTemplate = dynamic(
-  () => import("@/components/templates/MinimalTemplate").then((m) => ({ default: m.MinimalTemplate })),
-  { ssr: false }
-);
-const CompactTemplate = dynamic(
-  () => import("@/components/templates/CompactTemplate").then((m) => ({ default: m.CompactTemplate })),
-  { ssr: false }
-);
+export interface PreviewSnapshot {
+  data: ResumeData;
+  template: TemplateName;
+  sectionOrder: SectionKey[];
+  emphasis: Partial<Record<SectionKey, SectionEmphasis>>;
+  language: "zh" | "en";
+}
 
-export const PreviewPanel = forwardRef<HTMLDivElement>(function PreviewPanel(_, ref) {
-  const { data, template, sectionOrder, emphasis, activeLanguage } = useResumeStore();
+interface PreviewPanelProps {
+  snapshot?: PreviewSnapshot;
+  exportMode?: boolean;
+  onRendered?: () => void;
+}
+
+export const PreviewPanel = forwardRef<HTMLDivElement, PreviewPanelProps>(function PreviewPanel(
+  { snapshot, exportMode = false, onRendered },
+  ref,
+) {
+  const store = useResumeStore();
+  const data = snapshot?.data ?? store.data;
+  const template = snapshot?.template ?? store.template;
+  const sectionOrder = snapshot?.sectionOrder ?? store.sectionOrder;
+  const emphasis = snapshot?.emphasis ?? store.emphasis;
+  const language = snapshot?.language ?? store.activeLanguage;
+  const normalizedSectionOrder = useMemo(
+    () => normalizeSectionOrder(sectionOrder),
+    [sectionOrder],
+  );
 
   const props = {
     data,
-    sectionOrder: normalizeSectionOrder(sectionOrder),
+    sectionOrder: normalizedSectionOrder,
     emphasis,
-    language: activeLanguage,
+    language,
   };
 
+  useEffect(() => {
+    onRendered?.();
+  }, [onRendered, data, template, normalizedSectionOrder, emphasis, language]);
+
   return (
-    <div className="flex justify-center">
+    <div className={`flex justify-center${exportMode ? " export-preview-shell" : ""}`}>
       <div
         ref={ref}
         id="resume-preview"
+        data-template={template}
+        data-language={language}
+        data-export-mode={exportMode ? "true" : "false"}
         className="bg-white shadow-lg resume-print-area"
-        style={{ width: "794px", minHeight: "1123px" }}
+        style={{
+          width: `${RESUME_TOKENS.page.widthPx}px`,
+          minHeight: `${RESUME_TOKENS.page.minHeightPx}px`,
+        }}
       >
         {template === "modern" && <ModernTemplate {...props} />}
         {template === "minimal" && <MinimalTemplate {...props} />}

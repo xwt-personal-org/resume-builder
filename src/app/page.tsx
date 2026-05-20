@@ -18,7 +18,7 @@ export default function Home() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-[var(--color-bg-secondary)]">
-      <header className="flex items-center justify-between px-5 py-2.5 bg-white border-b border-[var(--color-border)] shrink-0 shadow-sm">
+      <header className="no-print flex items-center justify-between px-5 py-2.5 bg-white border-b border-[var(--color-border)] shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
           <h1 className="text-base font-bold text-[var(--color-text)] tracking-tight">
             {t("app.title")}
@@ -60,8 +60,13 @@ export default function Home() {
       <ExportBar />
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-[420px] min-w-[420px] border-r border-[var(--color-border)] overflow-y-auto bg-white">
-          <SidebarEditor />
+        <div className="no-print w-[420px] min-w-[420px] border-r border-[var(--color-border)] overflow-y-auto bg-white flex flex-col">
+          <div className="flex-1 overflow-y-auto">
+            <SidebarEditor />
+          </div>
+          <div className="p-4 bg-[var(--color-bg-tertiary)] border-t border-[var(--color-border)] text-xs text-[var(--color-text-muted)] text-center">
+            🔒 隐私说明：您的简历数据仅保存在浏览器本地，我们不会收集或上传任何个人信息。
+          </div>
         </div>
 
         <main className="flex-1 overflow-auto bg-[var(--color-bg-secondary)] p-6">

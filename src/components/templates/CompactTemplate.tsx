@@ -1,7 +1,7 @@
 "use client";
 
-import type { ResumeData, SectionKey, SectionEmphasis } from "@/types";
-import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import type { BilingualText, ResumeData, SectionKey, SectionEmphasis } from "@/types";
+import { RESUME_TEMPLATE_ROOT_STYLE, RESUME_TOKENS } from "@/lib/templates/designTokens";
 import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface TemplateProps {
@@ -13,6 +13,11 @@ interface TemplateProps {
 
 const TOKENS = RESUME_TOKENS;
 const C = RESUME_TOKENS.colors;
+const MAX_COMPACT_HIGHLIGHTS = 3;
+
+function getCompactHighlights(highlights: BilingualText[] = []) {
+  return highlights.slice(0, MAX_COMPACT_HIGHLIGHTS);
+}
 
 function PhotoSlot({ src, language, width, height }: { src: string; language: "zh" | "en"; width: number; height: number }) {
   if (src) {
@@ -159,9 +164,9 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
                 {getText(item.description)}
               </div>
             )}
-            {item.highlights && item.highlights.length > 0 && (
+            {getCompactHighlights(item.highlights).length > 0 && (
               <ul style={{ margin: "1px 0 0 0", paddingLeft: "14px", fontSize: "10.5px", color: C.textSecondary }}>
-                {item.highlights.map((h, i) => (
+                {getCompactHighlights(item.highlights).map((h, i) => (
                   <li key={i} style={{ lineHeight: 1.45 }}>{getText(h)}</li>
                 ))}
               </ul>
@@ -231,9 +236,9 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
                 {getText(exp.description)}
               </div>
             )}
-            {exp.highlights && exp.highlights.length > 0 && (
+            {getCompactHighlights(exp.highlights).length > 0 && (
               <ul style={{ margin: "1px 0 0 0", paddingLeft: "14px", fontSize: "10.5px", color: C.textSecondary }}>
-                {exp.highlights.map((h, i) => (
+                {getCompactHighlights(exp.highlights).map((h, i) => (
                   <li key={i} style={{ lineHeight: 1.45 }}>{getText(h)}</li>
                 ))}
               </ul>
@@ -272,9 +277,9 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
                 {getText(proj.description)}
               </div>
             ) : null}
-            {proj.highlights && proj.highlights.length > 0 && (
+            {getCompactHighlights(proj.highlights).length > 0 && (
               <ul style={{ margin: "1px 0 0 0", paddingLeft: "14px", fontSize: "10.5px", color: C.textSecondary }}>
-                {proj.highlights.map((h, i) => (
+                {getCompactHighlights(proj.highlights).map((h, i) => (
                   <li key={i} style={{ lineHeight: 1.45 }}>{getText(h)}</li>
                 ))}
               </ul>
@@ -303,9 +308,9 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
                 {getText(act.description)}
               </div>
             )}
-            {act.highlights && act.highlights.length > 0 ? (
+            {getCompactHighlights(act.highlights).length > 0 ? (
               <ul style={{ margin: "1px 0 0 0", paddingLeft: "14px", fontSize: "10.5px", color: C.textSecondary }}>
-                {act.highlights.map((h, i) => (
+                {getCompactHighlights(act.highlights).map((h, i) => (
                   <li key={i} style={{ lineHeight: 1.45 }}>{getText(h)}</li>
                 ))}
               </ul>
@@ -352,8 +357,9 @@ export function CompactTemplate({ data, sectionOrder, emphasis, language }: Temp
   return (
     <div
       style={{
+        ...RESUME_TEMPLATE_ROOT_STYLE,
         padding: `${TOKENS.page.padding.compact.top}px ${TOKENS.page.padding.compact.right}px ${TOKENS.page.padding.compact.bottom}px ${TOKENS.page.padding.compact.left}px`,
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontFamily: TOKENS.fontFamily,
         lineHeight: 1.45,
         color: C.text,
         background: "#ffffff",

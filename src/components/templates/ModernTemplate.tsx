@@ -1,7 +1,7 @@
 "use client";
 
 import type { ResumeData, SectionKey, SectionEmphasis } from "@/types";
-import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import { RESUME_TEMPLATE_ROOT_STYLE, RESUME_TOKENS } from "@/lib/templates/designTokens";
 import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface TemplateProps {
@@ -668,9 +668,9 @@ export function ModernTemplate({
   return (
     <div
       style={{
-        width: `${TOKENS.page.widthPx}px`,
+        ...RESUME_TEMPLATE_ROOT_STYLE,
         minHeight: `${TOKENS.page.minHeightPx}px`,
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontFamily: TOKENS.fontFamily,
         lineHeight: 1.5,
         display: "flex",
         color: MAIN_TEXT,
@@ -681,6 +681,8 @@ export function ModernTemplate({
       <div
         style={{
           width: "30%",
+          flex: "0 0 30%",
+          boxSizing: "border-box",
           background: SIDEBAR_BG,
           color: SIDEBAR_TEXT,
           padding: "24px 16px",
@@ -696,6 +698,8 @@ export function ModernTemplate({
       <div
         style={{
           width: "70%",
+          flex: "0 0 70%",
+          boxSizing: "border-box",
           padding: `${TOKENS.page.padding.modern.top}px ${TOKENS.page.padding.modern.right}px ${TOKENS.page.padding.modern.bottom}px ${TOKENS.page.padding.modern.left}px`,
         }}
       >

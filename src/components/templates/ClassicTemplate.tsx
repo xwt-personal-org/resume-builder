@@ -1,7 +1,7 @@
 "use client";
 
 import type { ResumeData, SectionKey, SectionEmphasis } from "@/types";
-import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import { RESUME_TEMPLATE_ROOT_STYLE, RESUME_TOKENS } from "@/lib/templates/designTokens";
 import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface TemplateProps {
@@ -269,7 +269,7 @@ export function ClassicTemplate({ data, sectionOrder, emphasis, language }: Temp
   };
 
   return (
-    <div style={{ padding: `${TOKENS.page.padding.classic.top}px ${TOKENS.page.padding.classic.right}px ${TOKENS.page.padding.classic.bottom}px ${TOKENS.page.padding.classic.left}px`, fontFamily: "system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif", lineHeight: 1.5, color: C.text, background: "#ffffff" }}>
+    <div style={{ ...RESUME_TEMPLATE_ROOT_STYLE, padding: `${TOKENS.page.padding.classic.top}px ${TOKENS.page.padding.classic.right}px ${TOKENS.page.padding.classic.bottom}px ${TOKENS.page.padding.classic.left}px`, fontFamily: TOKENS.fontFamily, lineHeight: 1.5, color: C.text, background: "#ffffff" }}>
       {visibleSections.map((key) => (
         <div key={key}>{sectionRenderers[key]?.()}</div>
       ))}

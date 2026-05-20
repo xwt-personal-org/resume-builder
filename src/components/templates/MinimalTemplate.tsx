@@ -1,7 +1,7 @@
 "use client";
 
 import type { ResumeData, SectionKey, SectionEmphasis } from "@/types";
-import { RESUME_TOKENS } from "@/lib/templates/designTokens";
+import { RESUME_TEMPLATE_ROOT_STYLE, RESUME_TOKENS } from "@/lib/templates/designTokens";
 import { normalizeSectionOrder } from "@/lib/resume/sectionOrder";
 
 interface TemplateProps {
@@ -11,7 +11,6 @@ interface TemplateProps {
   language: "zh" | "en";
 }
 
-const FONT = "system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
 const TOKENS = RESUME_TOKENS;
 const C = {
   text: TOKENS.colors.text,
@@ -62,9 +61,9 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
       <div style={{ marginTop: TOKENS.spacing.sectionTop }}>
         <div
           style={{
-            height: "1px",
+            height: `${TOKENS.line.sectionNormalPx}px`,
             background: C.line,
-            marginBottom: 6,
+            marginBottom: TOKENS.spacing.sectionTitleBottom,
           }}
         />
         <div
@@ -72,7 +71,7 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
             fontSize: TOKENS.fontSize.sectionTitle,
             fontWeight: 700,
             color: C.text,
-            letterSpacing: "0.02em",
+            letterSpacing: 0,
           }}
         >
           {label}
@@ -463,8 +462,9 @@ export function MinimalTemplate({ data, sectionOrder, emphasis, language }: Temp
   return (
     <div
       style={{
+        ...RESUME_TEMPLATE_ROOT_STYLE,
         padding: `${TOKENS.page.padding.minimal.top}px ${TOKENS.page.padding.minimal.right}px ${TOKENS.page.padding.minimal.bottom}px ${TOKENS.page.padding.minimal.left}px`,
-        fontFamily: FONT,
+        fontFamily: TOKENS.fontFamily,
         lineHeight: 1.5,
         color: C.text,
         background: C.bg,
