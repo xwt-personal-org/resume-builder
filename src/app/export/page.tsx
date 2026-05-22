@@ -137,7 +137,7 @@ export default function ExportPage() {
   const printStartedRef = useRef(false);
 
   useEffect(() => {
-    document.title = "Resume Print Export";
+    document.title = "Resume Builder Export";
 
     const nextPayload = readPrintPayload();
     if (!nextPayload) {
@@ -170,24 +170,31 @@ export default function ExportPage() {
 
   if (noPayload) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", fontFamily: "system-ui, sans-serif", color: "#1f2937" }}>
-        未找到导出数据，请返回主页面重新导出。
+      <div className="print-empty-state">
+        <div className="print-empty-card">
+          <div className="panel-kicker">Export session</div>
+          <h1 className="mt-2 text-lg font-semibold text-[var(--color-text)]">未找到导出数据</h1>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">请返回主页面重新导出。</p>
+        </div>
       </div>
     );
   }
 
   if (!payload) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontFamily: "system-ui, sans-serif", color: "#666" }}>
-        Loading...
+      <div className="print-loading-state">
+        <div className="print-loading-card">
+          <div className="panel-kicker">Preparing export</div>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="print-container" style={{ display: "flex", justifyContent: "center", padding: "0" }}>
+    <div className="print-container" style={{ display: "flex", justifyContent: "center", padding: "0", background: "white" }}>
       {printError && (
-        <div className="no-print" role="alert" style={{ position: "fixed", top: 12, left: 12, right: 12, zIndex: 1, padding: "8px 12px", fontFamily: "system-ui, sans-serif", fontSize: "12px", color: "#991b1b", background: "#fee2e2", border: "1px solid #fecaca", borderRadius: "6px" }}>
+        <div className="no-print" role="alert" style={{ position: "fixed", top: 12, left: 12, right: 12, zIndex: 1, padding: "10px 14px", fontFamily: "var(--font-sans)", fontSize: "12px", color: "#991b1b", background: "#fff7f7", border: "1px solid #fecaca", borderRadius: "14px" }}>
           {printError}
         </div>
       )}

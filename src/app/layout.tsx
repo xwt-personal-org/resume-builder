@@ -13,12 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Resume Builder - AI 驱动的智能简历构建器",
-  description: "创建针对特定岗位的专业简历，支持 AI 辅助生成、多模板切换、PDF/SVG 导出。数据完全在本地处理，保护您的隐私。",
-  keywords: ["简历", "简历生成器", "Resume Builder", "AI 简历", "PDF 导出", "求职"],
+  title: "Resume Builder - AI 校招简历工作台",
+  description: "AI 驱动的校招简历构建器，支持内容编辑、布局控制、Gemini 辅助生成以及 PDF/SVG/JSON 导出。",
+  keywords: ["简历", "简历生成器", "Resume Builder", "AI 简历", "PDF 导出", "求职", "Gemini AI"],
   openGraph: {
-    title: "Resume Builder - 智能简历构建器",
-    description: "高效、专业的本地简历生成工具",
+    title: "Resume Builder - AI 校招简历工作台",
+    description: "用于校招简历编辑、预览、AI 优化与导出的本地工作台。",
     type: "website",
   }
 };

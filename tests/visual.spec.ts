@@ -50,6 +50,9 @@ test.describe("resume visual snapshots", () => {
         await selectTemplate(page, templateName);
         await setLanguage(page, language);
 
+        // Wait for CSS transitions to settle completely
+        await page.waitForTimeout(500);
+
         await expect(page).toHaveScreenshot(`main-${templateName}-${language}.png`, {
           fullPage: true,
         });
@@ -71,6 +74,9 @@ test("print export opens clean export page", async ({ page, context }) => {
       window.dispatchEvent(new Event("resume-print-called"));
     };
   });
+
+  // Switch to Export tab first
+  await page.getByRole("button", { name: /导出|Export/i }).first().click();
 
   // Click main PDF export button
   const [newPage] = await Promise.all([
@@ -102,6 +108,9 @@ test("export page without payload shows error", async ({ page }) => {
 
 test("hide campus activities", async ({ page }) => {
   await resetApp(page);
+
+  // Switch to Layout tab first
+  await page.getByRole("button", { name: /布局|Layout/i }).click();
 
   await page
     .getByRole("button", { name: /隐藏 校园经历|Hide Campus Activities/i })

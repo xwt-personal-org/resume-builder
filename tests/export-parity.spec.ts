@@ -156,6 +156,9 @@ test.describe("export parity", () => {
         const mainSnapshot = await snapshotPreview(page);
         await savePreviewScreenshot(page, `main-preview-${template}-${language}.png`);
 
+        // Switch to Export tab first
+        await page.getByRole("button", { name: /导出|Export/i }).first().click();
+
         const [popup] = await Promise.all([
           page.waitForEvent("popup"),
           page.getByRole("button", { name: /一键导出 PDF|Export PDF/i }).click(),

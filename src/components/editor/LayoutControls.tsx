@@ -63,7 +63,7 @@ export function LayoutControls() {
           return (
             <div
               key={section}
-              className={`flex items-center justify-between gap-3 rounded-md border border-[var(--color-border)] px-3 py-2 transition ${isDragging ? "bg-[var(--color-bg-tertiary)] opacity-70" : "bg-white"}`}
+              className={`flex items-center justify-between gap-3 rounded-[14px] border border-[var(--color-border)] px-3 py-2 transition ${isDragging ? "bg-[var(--color-bg-tertiary)] opacity-70" : "bg-white"}`}
               draggable
               onDragStart={(event) => {
                 setDraggingSection(section);
@@ -85,11 +85,11 @@ export function LayoutControls() {
             >
               <div className="flex min-w-0 items-center gap-2">
                 <span
-                  className="select-none text-sm leading-none text-[var(--color-text-muted)]"
+                  className="select-none font-mono text-xs leading-none text-[var(--color-text-muted)]"
                   aria-label={`${t("layout.dragHandle")} ${label}`}
                   title={t("layout.dragHandle")}
                 >
-                  ⋮⋮
+                  ::
                 </span>
                 <div className="min-w-0">
                   <div className="text-xs font-medium text-[var(--color-text)]">{label}</div>
