@@ -11,17 +11,6 @@ jobs:
   visual-tests:
     runs-on: ubuntu-latest
     
-    services:
-      node:
-        image: node:20
-        ports:
-          - 3001:3001
-        options: >-
-          --health-cmd "curl --silent http://localhost:3001 || exit 1"
-          --health-interval 30s
-          --health-timeout 10s
-          --health-retries 5
-    
     steps:
       - uses: actions/checkout@v4
       
