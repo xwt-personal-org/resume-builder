@@ -62,6 +62,16 @@ jobs:
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           APP_URL: http://localhost:3001
+
+      - name: Run Export Parity Tests
+        run: npm run test:export-parity
+        env:
+          APP_URL: http://localhost:3001
+
+      - name: Run AI Assistant Tests
+        run: npm run test:ai
+        env:
+          APP_URL: http://localhost:3001
       
       - name: Upload test results
         if: always()

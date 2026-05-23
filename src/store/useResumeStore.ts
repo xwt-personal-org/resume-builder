@@ -54,6 +54,7 @@ interface ResumeState {
   loadResumeData: (data: ResumeData) => void;
   loadDemoData: () => void;
   resetResumeData: () => void;
+  applyAiPatch: (patch: Partial<ResumeData>) => void;
 }
 
 export const useResumeStore = create<ResumeState>()(
@@ -302,6 +303,20 @@ export const useResumeStore = create<ResumeState>()(
       }),
       loadDemoData: () => set({ data: { ...DEMO_RESUME_DATA } }),
       resetResumeData: () => set({ data: { ...DEFAULT_RESUME_DATA } }),
+      applyAiPatch: (patch) =>
+        set((state) => {
+          const merged = { ...state.data };
+          for (const [key, value] of Object.entries(patch)) {
+            if (value === undefined || value === null) continue;
+            if (key === 'personalInfo') {
+              merged.personalInfo = { ...merged.personalInfo, ...(value as Partial<ResumeData['personalInfo']>) };
+            } else {
+              // For array sections, replace the entire section with AI output
+              (merged as Record<string, unknown>)[key] = value;
+            }
+          }
+          return { data: merged };
+        }),
     }),
     {
       name: 'resume-builder-data',

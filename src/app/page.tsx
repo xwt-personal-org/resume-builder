@@ -1,43 +1,86 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useResumeStore } from "@/store/useResumeStore";
 import { SidebarEditor } from "@/components/editor/SidebarEditor";
 import { PreviewPanel } from "@/components/preview/PreviewPanel";
 import { ExportBar } from "@/components/export/ExportBar";
+import { LayoutControls } from "@/components/editor/LayoutControls";
 import t, { setLocale } from "@/lib/i18n";
 import { TEMPLATE_NAMES } from "@/types";
 import type { TemplateName } from "@/types";
 
+const AiAssistantPanel = dynamic(
+  () => import("@/components/ai/AiAssistantPanel").then((m) => ({ default: m.AiAssistantPanel })),
+  { ssr: false }
+);
+
+type WorkspaceTab = "edit" | "ai" | "layout" | "export";
+
+const WORKSPACE_TABS: { key: WorkspaceTab; labelKey: string; code: string }[] = [
+  { key: "edit", labelKey: "workspace.edit", code: "01" },
+  { key: "ai", labelKey: "workspace.aiAssist", code: "02" },
+  { key: "layout", labelKey: "workspace.layout", code: "03" },
+  { key: "export", labelKey: "workspace.export", code: "04" },
+];
+
 export default function Home() {
   const { activeLanguage, setActiveLanguage, template, setTemplate } = useResumeStore();
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>("edit");
+  const activeTabMeta = WORKSPACE_TABS.find((tab) => tab.key === activeTab) ?? WORKSPACE_TABS[0];
 
   useEffect(() => {
     setLocale(activeLanguage);
   }, [activeLanguage]);
 
+  const renderWorkspaceContent = () => {
+    switch (activeTab) {
+      case "edit":
+        return <SidebarEditor />;
+      case "ai":
+        return <AiAssistantPanel />;
+      case "layout":
+        return (
+          <div className="workspace-inner">
+            <LayoutControls />
+          </div>
+        );
+      case "export":
+        return (
+          <div className="workspace-inner">
+            <ExportBar />
+          </div>
+        );
+      default:
+        return <SidebarEditor />;
+    }
+  };
+
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[var(--color-bg-secondary)]">
-      <header className="no-print flex items-center justify-between px-5 py-2.5 bg-white border-b border-[var(--color-border)] shrink-0 shadow-sm">
-        <div className="flex items-center gap-4">
-          <h1 className="text-base font-bold text-[var(--color-text)] tracking-tight">
-            {t("app.title")}
-          </h1>
-          <span className="text-[11px] text-[var(--color-text-muted)] hidden sm:inline">
-            {t("app.subtitle")}
-          </span>
+    <div className="app-shell">
+      <header className="studio-header no-print">
+        <div className="studio-brand">
+          <div className="studio-brand-mark">RB</div>
+          <div className="studio-brand-copy">
+            <span>Resume Studio</span>
+            <h1>{t("app.title")}</h1>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-[var(--color-bg-tertiary)] rounded-lg p-0.5">
+
+        <div className="studio-header-actions">
+          <div className="studio-status-strip" aria-label={t("app.subtitle")}>
+            <span>Local draft</span>
+            <span>AI assisted</span>
+            <span>Export ready</span>
+          </div>
+
+          <div className="template-switcher" aria-label={t("templates.switchTemplate")}>
             {(Object.keys(TEMPLATE_NAMES) as TemplateName[]).map((tmpl) => (
               <button
                 key={tmpl}
                 onClick={() => setTemplate(tmpl)}
-                className={`text-xs px-3 py-1.5 rounded-md transition-all duration-150 font-medium ${
-                  template === tmpl
-                    ? "bg-white shadow-sm text-[var(--color-primary)]"
-                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-                }`}
+                className={template === tmpl ? "is-active" : ""}
               >
                 {TEMPLATE_NAMES[tmpl][activeLanguage]}
               </button>
@@ -50,27 +93,69 @@ export default function Home() {
               setActiveLanguage(next);
               setLocale(next);
             }}
-            className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text)] transition-all font-medium"
+            className="language-switch"
           >
             {activeLanguage === "zh" ? "EN" : "中文"}
           </button>
         </div>
       </header>
 
-      <ExportBar />
+      <div className="studio-trust-strip no-print" aria-label={t("app.subtitle")}>
+        <span>{t("app.subtitle")}</span>
+        <span>Structured sections</span>
+        <span>Template parity</span>
+        <span>Print-safe preview</span>
+      </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="no-print w-[420px] min-w-[420px] border-r border-[var(--color-border)] overflow-y-auto bg-white flex flex-col">
-          <div className="flex-1 overflow-y-auto">
-            <SidebarEditor />
+      <div className="studio-layout">
+        <aside className="workspace-panel no-print">
+          <div className="workspace-panel-header">
+            <div>
+              <span className="panel-kicker">Workspace {activeTabMeta.code}</span>
+              <h2>{t(activeTabMeta.labelKey)}</h2>
+            </div>
+            <span className="panel-state">Live</span>
           </div>
-          <div className="p-4 bg-[var(--color-bg-tertiary)] border-t border-[var(--color-border)] text-xs text-[var(--color-text-muted)] text-center">
-            🔒 隐私说明：您的简历数据仅保存在浏览器本地，我们不会收集或上传任何个人信息。
-          </div>
-        </div>
 
-        <main className="flex-1 overflow-auto bg-[var(--color-bg-secondary)] p-6">
-          <PreviewPanel />
+          <div className="workspace-tabs" role="tablist" aria-label="Workspace tools">
+            {WORKSPACE_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                aria-pressed={activeTab === tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`workspace-tab ${activeTab === tab.key ? "workspace-tab--active" : ""}`}
+              >
+                <span>{tab.code}</span>
+                <strong>{t(tab.labelKey)}</strong>
+              </button>
+            ))}
+          </div>
+
+          <div className="workspace-content">
+            {renderWorkspaceContent()}
+          </div>
+
+          <div className="privacy-note">
+            <span>Private by design</span>
+            <p>{t("ai.privacyNotice")}</p>
+          </div>
+        </aside>
+
+        <main className="preview-stage">
+          <div className="preview-toolbar no-print">
+            <div>
+              <span className="panel-kicker">Preview canvas</span>
+              <h2>{TEMPLATE_NAMES[template][activeLanguage]}</h2>
+            </div>
+            <div className="preview-toolbar-meta">
+              <span>A4</span>
+              <span>{activeLanguage === "zh" ? "中文" : "English"}</span>
+            </div>
+          </div>
+          <div className="preview-canvas-wrap">
+            <PreviewPanel />
+          </div>
         </main>
       </div>
     </div>

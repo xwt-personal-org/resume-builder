@@ -97,50 +97,51 @@ export function ExportBar() {
   };
 
   return (
-    <div className="no-print flex items-center gap-2 px-5 py-2 bg-[var(--color-bg-tertiary)] border-b border-[var(--color-border)]">
-      <div className="flex items-center gap-1.5">
-        <button onClick={handlePrintPDF} className="btn-primary text-xs px-3 py-1.5">
+    <div className="no-print export-actions-panel">
+      <div className="export-action-grid">
+        <button onClick={handlePrintPDF} className="btn-primary">
           {t("export.oneClickPdf")}
         </button>
-        <button onClick={handleExportSVG} className="btn-secondary text-xs px-3 py-1.5">
-          SVG
+        <button onClick={handleExportSVG} className="btn-secondary">
+          {t("export.svg")}
         </button>
-        <button onClick={handleExportJSON} className="btn-secondary text-xs px-3 py-1.5">
-          JSON
+        <button onClick={handleExportJSON} className="btn-secondary">
+          {t("export.json")}
         </button>
-        <button onClick={handleImportJSON} className="btn-secondary text-xs px-3 py-1.5">
+        <button onClick={handleImportJSON} className="btn-secondary">
           {t("export.importJson")}
         </button>
       </div>
 
-      {feedback && (
-        <span className="text-xs text-[var(--color-primary)] font-medium ml-1">{feedback}</span>
-      )}
-
-      <div className="flex-1" />
-
-      <button
-        onClick={() => {
-          if (confirm("加载示例数据将覆盖当前编辑的简历内容，确定要继续吗？")) {
-            store.loadDemoData();
-          }
-        }}
-        title="加载虚构的示例简历以供预览，将会覆盖当前内容"
-        className="btn-secondary text-xs px-3 py-1.5 text-[var(--color-primary)] border-[var(--color-primary-light)] hover:bg-blue-50"
-      >
-        加载示例
-      </button>
-      <button
-        onClick={() => {
-          if (confirm("确定要清空所有内容吗？")) {
-            store.resetResumeData();
-          }
-        }}
-        className="btn-danger text-xs px-3 py-1.5"
-      >
-        {t("editor.reset")}
-      </button>
-      <ShutdownButton />
+      <div className="export-secondary-row">
+        {feedback && (
+          <span className="text-xs font-semibold text-[var(--color-accent)]">{feedback}</span>
+        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              if (confirm(t("export.loadDemoConfirm"))) {
+                store.loadDemoData();
+              }
+            }}
+            title={t("export.loadDemoTitle")}
+            className="btn-secondary"
+          >
+            {t("export.loadDemo")}
+          </button>
+          <button
+            onClick={() => {
+              if (confirm(t("export.resetConfirm"))) {
+                store.resetResumeData();
+              }
+            }}
+            className="btn-danger"
+          >
+            {t("editor.reset")}
+          </button>
+          <ShutdownButton />
+        </div>
+      </div>
 
       <input
 

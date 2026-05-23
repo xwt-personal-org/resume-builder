@@ -51,14 +51,14 @@ export const PreviewPanel = forwardRef<HTMLDivElement, PreviewPanelProps>(functi
   }, [onRendered, data, template, normalizedSectionOrder, emphasis, language]);
 
   return (
-    <div className={`flex justify-center${exportMode ? " export-preview-shell" : ""}`}>
+    <div className={`preview-shell${exportMode ? " export-preview-shell" : ""}`}>
       <div
         ref={ref}
         id="resume-preview"
         data-template={template}
         data-language={language}
         data-export-mode={exportMode ? "true" : "false"}
-        className="bg-white shadow-lg resume-print-area"
+        className="resume-print-area"
         style={{
           width: `${RESUME_TOKENS.page.widthPx}px`,
           minHeight: `${RESUME_TOKENS.page.minHeightPx}px`,

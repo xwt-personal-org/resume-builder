@@ -47,14 +47,14 @@ export function ShutdownButton() {
   }
 
   if (status === "done") {
-    return <span className="text-xs text-[var(--color-muted)]">{t("runtime.shutdownDone")}</span>;
+    return <span className="text-xs text-[var(--color-text-muted)]">{t("runtime.shutdownDone")}</span>;
   }
 
   return (
     <button
       onClick={handleClick}
       disabled={status === "loading"}
-      className="btn-danger text-xs px-3 py-1.5"
+      className="btn-danger"
     >
       {status === "loading" ? t("runtime.shutdownTitle") : t("runtime.shutdown")}
     </button>
