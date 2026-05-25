@@ -1,8 +1,0 @@
-{
-  "schema_version": "wkstruc-lock/v9",
-  "lock_id": null,
-  "holder": null,
-  "acquired_at": null,
-  "expires_at": null,
-  "notes": "Copy this file to lock.json and fill in when starting multi-agent work. Delete lock.json when done."
-}
