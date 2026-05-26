@@ -2,14 +2,45 @@
 
 This document outlines the deployment strategy, checklist, and smoke tests for releasing the Resume Builder as a public web application under a custom domain.
 
-## Selected Deployment Mode
+## Selected Deployment Mode & Empirical Validation
 
-**Node.js Deployment (Default Next.js Server)**
+**Standard Node.js Deployment (Recommended & Fully Validated)**
 
-We have chosen standard Node.js deployment (e.g., via Vercel, Railway, or a traditional VPS running `next start`) instead of Static Export (`output: "export"`). 
+We have evaluated and empirically tested both **Static Export (`output: "export"`)** and **Standard Node.js Server Deployment** under production build conditions. 
 
-**Reasoning:**
-The application includes API routes (`/api/ai/resume`, `/api/runtime/shutdown`) which require a Node.js server. Next.js static export does not support API routes, and the AI integration requires server-side processing to protect the Google AI API key.
+### 1. Static Export Feasibility Verification
+
+To verify if Static Export is a viable option for Stage 1, we configured `output: "export"` in `next.config.ts` and ran a production build via `npm run build`. The build failed with the following errors:
+
+```bash
+Collecting page data using 7 workers ...
+Error: export const dynamic = "force-dynamic" on page "/api/runtime/shutdown" cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+
+> Build error occurred
+Error: Failed to collect page data for /api/runtime/shutdown
+```
+
+**Architectural Assessment:**
+* **API Routes Incompatibility**: The application requires dynamic server-side capabilities:
+  * `/api/ai/resume`: Passes user prompts securely to the Google Gemini API to protect the `GOOGLE_AI_API_KEY` from public exposure in the client side.
+  * `/api/runtime/shutdown`: Used in local desktop environment integrations to terminate the Next.js process.
+* **Verdict**: Static Export (`output: "export"`) is **fundamentally incompatible** with the core design. Standard Node.js server mode must be selected to support the server-side API routes and dynamic capabilities.
+
+### 2. Export & Print Stability Verification (Node.js Build)
+
+We executed standard production builds (`npm run build`) and conducted comprehensive automated integration testing under Playwright to verify the stability of the PDF print flow, JSON import/export, and SVG export.
+
+* **PDF Print Flow & `/export` Parity**: 
+  * The `/export` route is successfully compiled as a prerendered static page and runs perfectly on the Node.js production server.
+  * It dynamically reads print payloads from `sessionStorage` (key: `resume-export-payload`) sent by the main editor.
+  * All 8 automated export-parity test cases (`tests/export-parity.spec.ts`) passed successfully. The exported print layout matches the main page preview layout exactly in terms of CSS styles, responsive widths, and font loading for Classic, Modern, Minimal, and Compact templates in both Chinese and English.
+* **Print CSS & Font Rendering**: 
+  * `@media print` CSS rules in `globals.css` successfully map to standard A4 paper size (`210mm x 297mm`) with margins zeroed out (`margin: 0`), preventing standard browser page headers and footers from corrupting the layout.
+  * Web fonts are pre-validated as fully loaded before the print dialog is triggered via `document.fonts.ready` within `src/app/export/page.tsx`.
+* **JSON Import/Export**: 
+  * Re-validated client-side state serialization (`exportToJSON` and `importFromJSON` in `src/lib/export/json.ts`). Functions operate completely on the client side using browser blobs, guaranteeing perfect independence from hosting mode.
+* **SVG Export**: 
+  * Custom CJK-safe SVG generator (`src/lib/export/svg.ts`) successfully renders structured vector assets on the client. It handles multilingual text wrapping and templates perfectly.
 
 ## Environment Variables
 

@@ -12,7 +12,7 @@ import { TEMPLATE_NAMES } from "@/types";
 import type { TemplateName } from "@/types";
 
 const AiAssistantPanel = dynamic(
-  () => import("@/components/ai/AiAssistantPanel").then((m) => ({ default: m.AiAssistantPanel })),
+  () => import("@/components/ai/AiAssistantPanel").then((m) => m.AiAssistantPanel),
   { ssr: false }
 );
 
