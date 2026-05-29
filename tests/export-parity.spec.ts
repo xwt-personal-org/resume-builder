@@ -182,6 +182,7 @@ test.describe("export parity", () => {
         const printSnapshot = await snapshotPreview(popup);
         expect(printSnapshot.attrs.template).toBe(template);
         expect(printSnapshot.attrs.language).toBe(language);
+        // Verify print media CSS: ensure shadows are removed and background is pure white for clean printing
         expect(printSnapshot.rootStyle.boxShadow).toBe("none");
         expect(printSnapshot.rootStyle.backgroundColor).toBe("rgb(255, 255, 255)");
         expect(printSnapshot.rect.width).toBeGreaterThan(790);
