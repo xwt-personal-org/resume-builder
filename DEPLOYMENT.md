@@ -90,6 +90,43 @@ Before deploying or merging changes, ensure the following commands pass:
 
 *Note: If intentional UI changes are made, update visual baselines using `npm run test:visual:update`.*
 
+## Build Verification Log
+
+### 2026-05-28 (WEN-120)
+
+**Environment**: Next.js 16.2.4 (Turbopack), Node.js on Windows
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| `npm run build` | ✅ Pass | Exit 0, no errors |
+| `npm run lint` | ✅ Pass | No warnings or errors |
+| `npx tsc --noEmit` | ✅ Pass | Clean type check |
+| Build without `GOOGLE_AI_API_KEY` | ✅ Pass | AI env vars only read at runtime |
+
+**Build Output**:
+- Total files: 259
+- Total size: 11.56 MB
+- Static assets: 27 files, 1.01 MB
+- Compilation time: ~6s
+- TypeScript check: ~8s
+
+**Routes**:
+| Route | Type |
+|-------|------|
+| `/` | Static (prerendered) |
+| `/_not-found` | Static (prerendered) |
+| `/api/ai/resume` | Dynamic (server-rendered) |
+| `/api/runtime/shutdown` | Dynamic (server-rendered) |
+| `/export` | Static (prerendered) |
+
+**Warnings**: None
+
+**AI Feature Build Safety**:
+- `GOOGLE_AI_API_KEY` is read inside function bodies (runtime only), not at module level
+- `AiAssistantPanel` is dynamically imported with `{ ssr: false }`
+- `@google/genai` is only imported by server-side API route
+- Build succeeds without `.env.local` — AI features gracefully degrade at runtime
+
 ## Custom Domain Binding Checklist
 
 When deploying to a public host with a custom domain, ensure you follow these provider-neutral steps:
