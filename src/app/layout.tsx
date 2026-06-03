@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: "Resume Builder - AI 校招简历工作台",
   description: "AI 驱动的校招简历构建器，支持内容编辑、布局控制、Gemini 辅助生成以及 PDF/SVG/JSON 导出。",
   keywords: ["简历", "简历生成器", "Resume Builder", "AI 简历", "PDF 导出", "求职", "Gemini AI"],
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "16x16 32x32", type: "image/x-icon" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   openGraph: {
     title: "Resume Builder - AI 校招简历工作台",
     description: "用于校招简历编辑、预览、AI 优化与导出的本地工作台。",
